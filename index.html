@@ -1,39 +1,64 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Movie Imposter — Director's Cut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0b0b0e;--card:#15151b;--bdr:#272630;--red:#e50914;--gold:#d4af37;--gold2:#f5c518;--cream:#f4ebd9;--t:#f2f2f2;--mut:#8e8d9a}
+:root{--ink:#09090b;--panel:rgba(20,20,24,.86);--panel2:#111116;--line:rgba(255,255,255,.09);--red:#e31b32;--red2:#ff4058;--gold:#ddb96c;--cream:#f3efe6;--text:#f7f5ef;--mut:#99969f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0 auto;background:radial-gradient(circle at 50% 0%,#1d1824 0%,var(--bg) 65%);color:var(--t);font:15px/1.45 system-ui,-apple-system,sans-serif;padding:16px 16px 48px;max-width:480px;min-height:100vh}
-.hdr{text-align:center;margin:6px 0 14px}
-h1{color:var(--gold2);letter-spacing:3px;font-size:24px;font-weight:900;margin:4px 0;text-shadow:0 2px 16px rgba(245,197,24,.25)}
-.sub{color:var(--mut);font-size:12px;letter-spacing:1.2px;text-transform:uppercase}
-.c{background:var(--card);border:1px solid var(--bdr);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 10px 28px rgba(0,0,0,.45);animation:f .25s ease-out}
-@keyframes f{from{opacity:0;transform:translateY(6px)}}
-button,input,select,textarea{width:100%;padding:12px 14px;margin:6px 0;border-radius:11px;border:1px solid #2e2d3a;background:#0e0e13;color:var(--t);font-size:15px;font-family:inherit}
-button{background:linear-gradient(135deg,#e50914,#b80710);border:0;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(229,9,20,.3)}
-button.g{background:#23232e;border:1px solid #343444;box-shadow:none}
-button.gold{background:linear-gradient(135deg,#f5c518,#c99c10);color:#111}
-button:disabled{opacity:.4;box-shadow:none}
-.big{font-size:28px;text-align:center;font-weight:850;color:var(--gold2);word-break:break-word;line-height:1.2}
-.code{letter-spacing:6px;font-family:ui-monospace,monospace}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0}
-.row button,.row input{width:auto;padding:6px 12px;margin:0}.row input{width:90px}
-.imp{color:var(--red)}.mut{color:var(--mut);font-size:13px}
-.tm{font-size:28px;font-weight:800;text-align:center;color:var(--gold2);margin:4px 0}
-.badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;background:rgba(212,175,55,.16);color:var(--gold2);border:1px solid rgba(212,175,55,.35)}
-.pbox{background:linear-gradient(135deg,rgba(212,175,55,.12),rgba(229,9,20,.08));border:1px solid rgba(212,175,55,.4);border-radius:14px;padding:12px 14px;margin:10px 0;text-align:center}
-.ptxt{font-size:15px;font-weight:600;color:var(--cream);margin-top:5px}
-.stub{position:relative;width:100%;min-height:210px;background:#141311;color:var(--cream);border:1.5px solid var(--gold);border-radius:16px;overflow:hidden;user-select:none;-webkit-user-select:none;box-shadow:0 18px 40px rgba(0,0,0,.7);margin:12px 0;cursor:pointer}
-.t-in{padding:24px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:210px;background:radial-gradient(circle at 50% 20%,rgba(212,175,55,.14),transparent 70%)}
-.t-ser{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:2px;color:#8c826b;margin-bottom:6px}
-.t-div{width:80%;border-top:1px dashed rgba(212,175,55,.35);margin:10px 0 6px}
-.shut{position:absolute;inset:0;background:repeating-linear-gradient(-45deg,#1b1a17,#1b1a17 14px,#25231f 14px,#25231f 28px);border-bottom:3px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center;transition:transform .28s cubic-bezier(.16,1,.3,1)}
-.stub.peek .shut{transform:translateY(-90%)}
-.clap{width:100%;height:16px;position:absolute;top:0;left:0;background:repeating-linear-gradient(-45deg,var(--gold),var(--gold) 14px,#111 14px,#111 28px);border-bottom:2px solid #000}
-.pill{margin-top:10px;padding:7px 16px;border-radius:99px;background:rgba(212,175,55,.15);border:1px solid var(--gold);color:var(--gold2);font-weight:700;font-size:12px;letter-spacing:.8px}
-.queue-box{background:#111015;border:1px solid #282733;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}
-.q-item{padding:4px 0;font-size:14px;display:flex;justify-content:space-between;align-items:center}
+body{margin:0 auto;color:var(--text);font:500 15px/1.5 Manrope,system-ui,sans-serif;padding:28px 18px 56px;max-width:1040px;min-height:100vh;background:
+linear-gradient(180deg,rgba(8,8,10,.25),rgba(8,8,10,.94) 72%),radial-gradient(ellipse at 50% -10%,rgba(181,47,55,.22),transparent 42%),#09090b}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E")}
+.hdr{display:flex;align-items:flex-end;justify-content:center;margin:0 0 26px;border-bottom:1px solid var(--line);padding:0 0 18px}
+h1{font-family:"Playfair Display",serif;color:var(--cream);letter-spacing:-1.5px;font-size:29px;font-weight:800;margin:0;text-transform:uppercase}
+h1 span{color:var(--red2)}
+.sub{display:none}
+#app{max-width:620px;margin:auto}
+.c{background:linear-gradient(145deg,rgba(24,24,29,.94),rgba(14,14,17,.94));border:1px solid var(--line);border-radius:18px;padding:16px;margin:10px 0;box-shadow:0 18px 50px rgba(0,0,0,.32);animation:f .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes f{from{opacity:0;transform:translateY(8px)}}
+input,select,textarea{width:100%;padding:14px 15px;margin:6px 0;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#0b0b0e;color:var(--text);font:600 15px Manrope,sans-serif;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:rgba(227,27,50,.7);box-shadow:0 0 0 3px rgba(227,27,50,.09)}
+input::placeholder,textarea::placeholder{color:#696771}
+button{width:100%;padding:13px 16px;margin:6px 0;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(135deg,#ed2037,#c90f29);color:white;font:800 13px Manrope,sans-serif;letter-spacing:.2px;cursor:pointer;box-shadow:0 10px 24px rgba(199,15,41,.18);transition:transform .16s,filter .16s,box-shadow .16s}
+button:hover{transform:translateY(-1px);filter:brightness(1.07);box-shadow:0 14px 30px rgba(199,15,41,.24)}
+button:active{transform:translateY(1px) scale(.995)}
+button.g{background:rgba(255,255,255,.045);border-color:var(--line);box-shadow:none}
+button.gold{background:linear-gradient(135deg,#f0cc82,#bd9450);color:#17130d;box-shadow:0 12px 28px rgba(189,148,80,.16)}
+button:disabled{opacity:.38;box-shadow:none;filter:saturate(.4)}
+.big{font-family:"Playfair Display",serif;font-size:27px;text-align:center;font-weight:800;color:var(--gold);word-break:break-word;line-height:1.15}
+.code{letter-spacing:5px;font-family:"DM Mono",monospace}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0}
+.row button,.row input{width:auto;padding:8px 11px;margin:0}.row input{width:90px}
+.imp{color:var(--red2)}.mut{color:var(--mut);font-size:12px;font-weight:700;letter-spacing:.2px}
+.tm{font-family:"DM Mono",monospace;font-size:38px;font-weight:500;text-align:center;color:var(--cream);margin:4px 0}
+.badge{display:inline-block;padding:5px 9px;border-radius:99px;font:800 10px "DM Mono",monospace;letter-spacing:.8px;text-transform:uppercase;background:rgba(221,185,108,.1);color:var(--gold);border:1px solid rgba(221,185,108,.22)}
+.pbox{background:linear-gradient(135deg,rgba(221,185,108,.09),rgba(227,27,50,.07));border:1px solid rgba(221,185,108,.22);border-radius:16px;padding:13px 14px;margin:10px 0;text-align:center}
+.ptxt{font-size:14px;font-weight:800;color:var(--cream);margin-top:6px}
+.stub{position:relative;width:100%;min-height:230px;background:#121216;color:var(--cream);border:1px solid rgba(221,185,108,.55);border-radius:18px;overflow:hidden;user-select:none;-webkit-user-select:none;box-shadow:0 24px 70px rgba(0,0,0,.58);margin:12px 0;cursor:pointer}
+.stub:after{content:"";position:absolute;inset:8px;border:1px solid rgba(221,185,108,.12);border-radius:12px;pointer-events:none}
+.t-in{padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:230px;background:radial-gradient(circle at 50% 10%,rgba(221,185,108,.12),transparent 58%),linear-gradient(145deg,#17171b,#101014)}
+.t-ser{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:2px;color:#a69b81;margin-bottom:9px}
+.t-div{width:72%;border-top:1px solid rgba(221,185,108,.18);margin:14px 0 8px}
+.shut{position:absolute;inset:0;background:linear-gradient(145deg,#222229,#15151a);border-bottom:3px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center;transition:transform .38s cubic-bezier(.16,1,.3,1)}
+.stub.peek .shut{transform:translateY(-92%)}
+.clap{width:100%;height:18px;position:absolute;top:0;left:0;background:repeating-linear-gradient(-45deg,var(--gold),var(--gold) 12px,#171719 12px,#171719 24px);border-bottom:2px solid #080808}
+.pill{margin-top:12px;padding:8px 16px;border-radius:99px;background:rgba(221,185,108,.09);border:1px solid rgba(221,185,108,.38);color:var(--gold);font:800 10px "DM Mono",monospace;letter-spacing:.8px;text-transform:uppercase}
+.queue-box{background:#0c0c0f;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;text-align:left}
+.q-item{padding:7px 2px;font-size:13px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.04)}
+.q-item:last-child{border:0}
+.hero{position:relative;overflow:hidden;text-align:center;padding:32px 20px 24px;border:1px solid rgba(255,255,255,.08);border-radius:20px;background:linear-gradient(160deg,rgba(35,27,31,.9),rgba(12,12,15,.96));margin-bottom:12px}
+.hero:before{content:"";position:absolute;width:260px;height:260px;border:1px solid rgba(227,27,50,.16);border-radius:50%;left:50%;top:-170px;transform:translateX(-50%);box-shadow:0 0 80px rgba(227,27,50,.08)}
+.hero-kicker{color:var(--gold);font:500 10px "DM Mono",monospace;letter-spacing:2px;text-transform:uppercase}
+.hero h2{font:800 38px/1.05 "Playfair Display",serif;margin:14px 0 8px}
+.hero p{max-width:430px;margin:0 auto;color:var(--mut);font-size:13px}
+.join-row{display:flex;gap:8px}.join-row input{margin:0}.join-row button{width:130px;margin:0}
+.cast-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cast-item{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:12px;padding:10px 11px;display:flex;justify-content:space-between;gap:6px}
+.cast-item .pts{color:var(--gold);font-family:"DM Mono",monospace;font-size:11px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.settings-grid>*{margin:0}
+.phase-strip{display:flex;justify-content:center;gap:7px;margin:0 0 10px}.phase-dot{width:6px;height:6px;border-radius:50%;background:#35353b}.phase-dot.active{background:var(--red2);box-shadow:0 0 12px var(--red)}
+@media(min-width:760px){body{padding-top:34px}#app{max-width:760px}.cast-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.stub{min-height:260px}.t-in{min-height:260px}.hero h2{font-size:48px}}
+@media(max-width:520px){body{padding:18px 12px 40px}.hdr{justify-content:flex-start;margin-bottom:18px}h1{font-size:23px}.hero h2{font-size:35px}.settings-grid{grid-template-columns:1fr}.join-row{flex-direction:column}.join-row button{width:100%}.cast-grid{grid-template-columns:1fr 1fr}.row{gap:6px}}
 </style></head><body>
-<div class="hdr"><h1>🎬 MOVIE IMPOSTER</h1><div class="sub">35mm Director's Cut • Live Party Edition</div></div>
+<div class="hdr"><h1>MOVIE <span>IMPOSTER</span></h1></div>
 <div id="app"><div class="c mut" style="text-align:center">Loading screening room…</div></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -102,8 +127,20 @@ setInterval(()=>{const e=$('#tm');if(e&&room&&room.tEnd)e.textContent=Math.max(0
 const pre=(new URLSearchParams(location.search)).get('r')||'';
 
 function home(){
-  app.innerHTML=`<div class="c"><div class="mut">Player Ticket Name</div><input id="n" placeholder="Your name" maxlength="14" value="${esc(LS('ln')||'')}"><button onclick="create()">🎟️ Create Screening Room</button></div>
-  <div class="c"><div class="mut">Have an Invite Code?</div><input id="c" placeholder="6-digit room code" inputmode="numeric" maxlength="6" value="${esc(pre)}"><button class="g" onclick="joinRoom()">Join Room</button></div>`;
+  app.innerHTML=`<section class="hero">
+    <div class="hero-kicker">One room. One secret role. No mercy.</div>
+    <h2>The movie is known.<br>The imposter is not.</h2>
+    <p>Read the clues, interrogate your friends, and expose the one person with the wrong reel.</p>
+  </section>
+  <div class="c">
+    <div class="mut" style="margin:0 0 4px">PLAYER NAME</div>
+    <input id="n" placeholder="Enter your screen name" maxlength="14" value="${esc(LS('ln')||'')}">
+    <button onclick="create()">CREATE A SCREENING ROOM</button>
+  </div>
+  <div class="c">
+    <div class="mut" style="margin:0 0 4px">INVITE CODE</div>
+    <div class="join-row"><input id="c" placeholder="6-digit code" inputmode="numeric" maxlength="6" value="${esc(pre)}"><button class="g" onclick="joinRoom()">JOIN ROOM</button></div>
+  </div>`;
 }
 function leaveRoom(){if(code)ref().off();LS('rc','');code=null;room=null;home()}
 function name(){const n=$('#n').value.trim();if(!n)alert('Enter your name');return n}
@@ -154,11 +191,14 @@ function hintBox(){
 
 function render(){
   const ph=room.phase,pl=P(),ids=Object.keys(pl),s=room.s||{};
-  let h=`<div class="c"><div class="row"><div><div class="mut">Room Code</div><div class="big code" style="font-size:22px;text-align:left">${code}</div></div>
-  <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:8px 12px" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Copied ✔'">🔗 Invite</button><button class="g" style="width:auto;padding:8px 10px" onclick="leaveRoom()">Exit</button></div></div></div>`;
+  const phases=['lobby','play','talk','vote','result'];
+  const active=phases.indexOf(ph);
+  let h=`<div class="phase-strip">${phases.map((p,i)=>`<span class="phase-dot ${i<=active?'active':''}" title="${p}"></span>`).join('')}</div>
+  <div class="c"><div class="row"><div><div class="mut">ROOM CODE</div><div class="big code" style="font-size:21px;text-align:left">${code}</div></div>
+  <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:9px 12px" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Invite copied'">INVITE</button><button class="g" style="width:auto;padding:9px 10px" onclick="leaveRoom()">EXIT</button></div></div></div>`;
   
   if(ph=='lobby'){
-    h+=`<div class="c"><b>Cast & Crew (${ids.length})</b>${ids.map(i=>`<div class="row"><span>${esc(pl[i])}${i==room.host?' 👑':''} <span class="mut">• ${SC(i)} pts</span></span>${isHost()&&i!=uid?`<button class="g" onclick="kick('${i}')">Kick</button>`:''}</div>`).join('')}</div>`;
+    h+=`<div class="c"><div class="row"><b>THE CAST</b><span class="badge">${ids.length} players</span></div><div class="cast-grid">${ids.map(i=>`<div class="cast-item"><span>${esc(pl[i])}${i==room.host?' <span class="mut">HOST</span>':''}</span><span class="pts">${SC(i)} pts</span>${isHost()&&i!=uid?`<button class="g" style="width:auto;padding:4px 7px;margin:0" onclick="kick('${i}')">×</button>`:''}</div>`).join('')}</div></div>`;
     if(isHost()){
       const dkOpts=[['standard','📚 Full 300+ Movie Database'],...Object.entries(DECKS).map(([k,v])=>[k,v.name])];
       h+=`<div class="c"><b>Director's Cut Settings</b>${S('DK',dkOpts)}`;
