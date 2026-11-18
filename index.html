@@ -15,7 +15,15 @@ button{background:var(--red);border:0;font-weight:700}button.g{background:#2a2a3
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 // PASTE YOUR FIREBASE WEB CONFIG HERE
-const CFG={apiKey:"",authDomain:"",databaseURL:"",projectId:"",appId:""};
+const CFG={
+    apiKey: "AIzaSyA3gGVcVJ5JuvVYsL43mlhzwZuAZoDFe7E",
+    authDomain: "movie-imposter-cf582.firebaseapp.com",
+    databaseURL: "https://movie-imposter-cf582-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "movie-imposter-cf582",
+    storageBucket: "movie-imposter-cf582.firebasestorage.app",
+    messagingSenderId: "709530139734",
+    appId: "1:709530139734:web:d1b4790dfe4e404f494ff7"
+  };
 firebase.initializeApp(CFG);const db=firebase.database();
 const LS=(k,v)=>{try{if(v===undefined)return localStorage[k];localStorage[k]=v}catch(e){}};
 let uid=LS('uid')||Math.random().toString(36).slice(2,10);LS('uid',uid);
