@@ -1,0 +1,104 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Movie Imposter</title>
+<style>
+:root{--bg:#0b0b0f;--card:#17171f;--red:#e50914;--gold:#f5c518;--t:#f2f2f2}
+*{box-sizing:border-box}body{margin:0 auto;background:var(--bg);color:var(--t);font:16px system-ui,sans-serif;padding:16px;max-width:480px}
+h1{color:var(--gold);letter-spacing:3px;text-align:center;margin:8px 0}.sub{text-align:center;color:#999;margin-bottom:12px}
+.c{background:var(--card);border-radius:14px;padding:16px;margin:12px 0;animation:f .3s}@keyframes f{from{opacity:0;transform:translateY(6px)}}
+button,input,select,textarea{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #333;background:#101016;color:var(--t);font-size:16px;font-family:inherit}
+button{background:var(--red);border:0;font-weight:700}button.g{background:#2a2a35}button:disabled{opacity:.4}
+.big{font-size:30px;text-align:center;font-weight:800;color:var(--gold);word-break:break-word}.code{letter-spacing:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0}.row button,.row input{width:auto;padding:6px 12px;margin:0}.row input{width:90px}
+.imp{color:var(--red)}.mut{color:#999;font-size:14px}.tm{font-size:28px;text-align:center;color:var(--gold)}
+</style></head><body>
+<h1>🎬 MOVIE IMPOSTER</h1><div class="sub">One movie. One imposter.</div><div id="app"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+// PASTE YOUR FIREBASE WEB CONFIG HERE
+const CFG={apiKey:"",authDomain:"",databaseURL:"",projectId:"",appId:""};
+firebase.initializeApp(CFG);const db=firebase.database();
+const LS=(k,v)=>{try{if(v===undefined)return localStorage[k];localStorage[k]=v}catch(e){}};
+let uid=LS('uid')||Math.random().toString(36).slice(2,10);LS('uid',uid);
+let code,room,MOV=[],show=false,lastPhase,lastTurn;
+let cfg={L:'all',P:'0-3000',D:'all',I:'auto',HM:'spoken',T:120,W:0,C:0,K:1,Y1:'',Y2:'',X:''};
+const app=document.getElementById('app'),$=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+fetch('movies.json').then(r=>r.json()).then(j=>MOV=j.movies.map(a=>({t:a[0],l:a[1],y:a[2],d:a[3]})));
+const ref=p=>db.ref('rooms/'+code+(p?'/'+p:''));
+const P=()=>room.players||{},isHost=()=>room.host==uid,isImp=()=>(room.imp||[]).includes(uid),SC=i=>(room.scores||{})[i]||0;
+const S=(k,o)=>`<select onchange="cfg.${k}=this.value">${o.map(([v,l])=>`<option value="${v}" ${cfg[k]==v?'selected':''}>${l}</option>`).join('')}</select>`;
+function beep(){try{const a=new(window.AudioContext||webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=660;o.start();o.stop(a.currentTime+.15)}catch(e){}try{navigator.vibrate(200)}catch(e){}}
+setInterval(()=>{const e=$('#tm');if(e&&room&&room.tEnd)e.textContent=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000))+'s'},400);
+const pre=(new URLSearchParams(location.search)).get('r')||'';
+function home(){app.innerHTML=`<div class="c"><input id="n" placeholder="Your name" maxlength="14" value="${esc(LS('ln')||'')}"><button onclick="create()">Create room</button></div>
+<div class="c"><input id="c" placeholder="6-digit room code" inputmode="numeric" maxlength="6" value="${esc(pre)}"><button class="g" onclick="joinRoom()">Join room</button></div>`}
+function name(){const n=$('#n').value.trim();if(!n)alert('Enter your name');return n}
+async function create(){const n=name();if(!n)return;const c=String(100000+Math.random()*900000|0);await db.ref('rooms/'+c).set({host:uid,phase:'lobby'});enter(c,n)}
+async function joinRoom(){const n=name();if(!n)return;const c=$('#c').value.trim();const s=await db.ref('rooms/'+c).get();
+if(!s.exists())return alert('Room not found');const v=s.val(),pl=v.players||{};
+const old=Object.keys(pl).find(i=>pl[i].toLowerCase()==n.toLowerCase());
+if(old){uid=old;LS('uid',uid)}else if(v.phase!='lobby')return alert('Game already started. Rejoin with your exact old name.');
+enter(c,n)}
+function enter(c,n){code=c;LS('rc',c);LS('ln',n);ref('players/'+uid).set(n);ref().on('value',x=>{room=x.val();if(!room){LS('rc','');alert('Room closed');return location.reload()}
+if(!P()[uid]){LS('rc','');return location.reload()}if(room.phase!=lastPhase){show=false;lastPhase=room.phase}
+const my=room.phase=='play'&&room.order&&room.order[room.turn]==uid&&!(room.s||{}).typed;if(my&&lastTurn!=room.turn)beep();lastTurn=my?room.turn:null;render()})}
+(async()=>{const c=LS('rc');if(c&&!pre){const s=await db.ref('rooms/'+c+'/players/'+uid).get();if(s.exists())enter(c,s.val())}})();
+function roleCard(){const r=room,s=r.s||{};let b;
+if(!show)b=`<div class="mut">Make sure nobody is peeking</div>`;
+else if(isImp()&&r.decoy)b=`<div class="mut">Your movie</div><div class="big">${esc(r.decoy)}</div>`;
+else if(isImp())b=`<div class="big imp">IMPOSTER</div><div class="mut">No movie! Bluff your hint.</div>${s.clue?`<div class="mut">Clue: ${esc(r.ml)}, ${Math.floor(r.my/10)*10}s</div>`:''}`;
+else b=`<div class="mut">Your movie</div><div class="big">${esc(r.movie)}</div>${s.clue?`<div class="mut">${esc(r.ml)} • ${r.my}</div>`:''}`;
+return `<div class="c" style="text-align:center">${b}<button class="g" onclick="show=!show;if(show)beep();render()">${show?'Hide':'Show my role'}</button></div>`}
+function hintBox(){const h=room.hints||{},ids=Object.keys(P());
+if(ids.every(i=>h[i]))return `<div class="c"><b>Hints</b>${ids.map(i=>`<div class="row"><span>${esc(P()[i])}</span><b>${esc(h[i])}</b></div>`).join('')}</div>`;
+return `<div class="c">${h[uid]?'<div class="mut">Hint sent ✔</div>':`<input id="h" placeholder="Your one-word hint" maxlength="30"><button onclick="sendHint()">Send hint</button>`}<div class="mut">${Object.keys(h).length}/${ids.length} submitted</div></div>`}
+function render(){const ph=room.phase,pl=P(),ids=Object.keys(pl),s=room.s||{};let h=`<div class="c"><div class="mut">Room code</div><div class="big code">${code}</div><button class="g" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Link copied ✔'">Copy invite link</button></div>`;
+if(ph=='lobby'){
+h+=`<div class="c"><b>Players (${ids.length})</b>${ids.map(i=>`<div class="row"><span>${esc(pl[i])}${i==room.host?' 👑':''} <span class="mut">${SC(i)} pts</span></span>${isHost()&&i!=uid?`<button class="g" onclick="kick('${i}')">Kick</button>`:''}</div>`).join('')}</div>`;
+if(isHost())h+=`<div class="c"><b>Settings</b>${S('L',[['all','All languages'],...['English','Tamil','Hindi','Telugu','Malayalam','Kannada','Korean','Japanese'].map(l=>[l,l])])}
+${S('P',[['0-3000','Any year'],['0-1989','Before 1990'],['1990-1999','1990s'],['2000-2009','2000s'],['2010-2019','2010s'],['2020-3000','2020s']])}
+<div class="row"><span class="mut">Custom years (optional)</span><input type="number" placeholder="from" value="${cfg.Y1}" onchange="cfg.Y1=this.value"><input type="number" placeholder="to" value="${cfg.Y2}" onchange="cfg.Y2=this.value"></div>
+${S('D',[['all','Any difficulty'],['easy','Easy'],['medium','Medium'],['hard','Hard']])}
+${S('I',[['auto','Imposters: auto'],['1','1 imposter'],['2','2 imposters']])}
+${S('HM',[['spoken','Hints: spoken, in turn'],['typed','Hints: typed, revealed together']])}
+${S('T',[[60,'Discussion 1 min'],[120,'Discussion 2 min'],[180,'Discussion 3 min'],[300,'Discussion 5 min']])}
+${S('W',[[0,'Endless rounds'],[5,'First to 5 pts'],[10,'First to 10 pts']])}
+${S('C',[[0,'Imposter knows they are imposter'],[1,'Confused mode: imposter gets a fake movie']])}
+${S('K',[[1,'Show year/language clues'],[0,'No clues']])}
+<textarea rows="3" placeholder="Custom movie pack (optional): one title per line" oninput="cfg.X=this.value">${esc(cfg.X)}</textarea>
+<button onclick="start()" ${ids.length<3?'disabled':''}>${ids.length<3?'Need 3+ players':'Start game'}</button></div>`;
+else h+=`<div class="c mut">Waiting for the host to start…</div>`}
+else if(ph=='play'){h+=roleCard();
+if(s.typed)h+=hintBox()+(isHost()?`<button onclick="talk()">Start discussion</button>`:'');
+else{const cur=room.order[room.turn];h+=`<div class="c" style="text-align:center"><div class="mut">Say ONE hint out loud. Turn ${room.turn+1}/${room.order.length}</div><div class="big">${esc(pl[cur]||'?')}${cur==uid?' (you!)':''}</div><div class="tm" id="tm"></div>${cur==uid||isHost()?`<button onclick="next()">Done ✅</button>`:''}</div>`}}
+else if(ph=='talk'){h+=roleCard()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Discuss! Who is the imposter?</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">Start voting</button>`:'')}
+else if(ph=='vote'){const v=room.votes||{};h+=`<div class="c"><b>Who is the imposter?</b> <span class="mut">${Object.keys(v).length}/${ids.length} voted</span>${ids.filter(i=>i!=uid).map(i=>`<button class="${v[uid]==i?'':'g'}" onclick="ref('votes/${uid}').set('${i}')">${esc(pl[i])}</button>`).join('')}</div>`+(isHost()?`<button onclick="reveal()">Reveal results</button>`:'')}
+else if(ph=='result'){const imp=room.imp||[],v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
+const sorted=ids.sort((a,b)=>SC(b)-SC(a)),win=s.win&&SC(sorted[0])>=s.win;
+h+=`<div class="c"><div class="mut">Imposter${imp.length>1?'s':''}</div><div class="big imp">${imp.map(i=>esc(pl[i]||'?')).join(' & ')}</div><div class="mut">Movie: <b>${esc(room.movie)}</b>${room.decoy?` (imposter saw: ${esc(room.decoy)})`:''}</div>
+<div class="mut">${room.caught?'✅ Caught! Crew +1':'😈 Imposters escaped! +2'}</div>${room.guess?`<div>Imposter guessed: <b>${esc(room.guess)}</b></div>`:''}</div>`;
+if(room.caught&&isImp()&&!room.guess)h+=`<div class="c"><b>Last chance: guess the movie (+1)</b><input id="g" placeholder="Movie name"><button onclick="guess()">Submit guess</button></div>`;
+if(win)h+=`<div class="c big">🏆 ${esc(pl[sorted[0]])} wins the match!</div>`;
+h+=`<div class="c"><b>Scoreboard</b>${sorted.map(i=>`<div class="row"><span>${esc(pl[i])} <span class="mut">(${cnt[i]||0} votes)</span></span><b>${SC(i)}</b></div>`).join('')}</div>`+(isHost()?`<button onclick="${win?"ref('scores').remove();":''}ref('phase').set('lobby')">${win?'New match':'Next round'}</button>`:'')}
+app.innerHTML=h}
+function kick(i){ref('players/'+i).remove()}
+function start(){let[a,b]=cfg.P.split('-').map(Number);if(cfg.Y1)a=+cfg.Y1;if(cfg.Y2)b=+cfg.Y2;
+let pool,custom=cfg.X.split('\n').map(x=>x.trim()).filter(Boolean);
+pool=custom.length?custom.map(t=>({t,l:'Custom',y:'',d:''})):MOV.filter(m=>(cfg.L=='all'||m.l==cfg.L)&&m.y>=a&&m.y<=b&&(cfg.D=='all'||m.d==cfg.D));
+if(!pool.length)return alert('No movies match. Loosen the filters.');
+const ids=Object.keys(P()).sort(()=>Math.random()-.5),n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
+const m=pool[Math.random()*pool.length|0];let decoy=null;
+if(+cfg.C){const alt=(custom.length?pool:MOV.filter(x=>x.l==m.l)).filter(x=>x.t!=m.t);if(alt.length)decoy=alt[Math.random()*alt.length|0].t}
+const clue=+cfg.K&&m.y;
+ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l,decoy,imp:ids.slice(0,k),order:ids.sort(()=>Math.random()-.5),turn:0,tEnd:Date.now()+20000,hints:null,votes:null,guess:null,caught:null,
+s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!clue}})}
+function next(){const t=room.turn+1;if(t>=room.order.length)talk();else ref().update({turn:t,tEnd:Date.now()+20000})}
+function talk(){ref().update({phase:'talk',tEnd:Date.now()+(room.s.talk||120)*1000})}
+function sendHint(){const v=$('#h').value.trim();if(v)ref('hints/'+uid).set(v)}
+function reveal(){const v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
+const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]),tie=top.length>1&&top[0][1]==top[1][1],caught=!!top.length&&!tie&&room.imp.includes(top[0][0]);
+Object.keys(P()).forEach(i=>{const imp=room.imp.includes(i),pts=caught?(imp?0:1):(imp?2:0);if(pts)ref('scores/'+i).transaction(s=>(s||0)+pts)});
+ref().update({phase:'result',caught})}
+function guess(){const g=$('#g').value.trim();if(!g)return;const ok=g.toLowerCase()==room.movie.toLowerCase();if(ok)ref('scores/'+uid).transaction(s=>(s||0)+1);ref('guess').set(g+(ok?' ✔':' ✘'))}
+home();
+</script></body></html>
