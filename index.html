@@ -18,7 +18,7 @@ button:disabled{opacity:.4;box-shadow:none}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0}
 .row button,.row input{width:auto;padding:6px 12px;margin:0}.row input{width:90px}
 .imp{color:var(--red)}.mut{color:var(--mut);font-size:13px}
-.tm{font-size:32px;font-weight:900;text-align:center;color:var(--gold2);margin:4px 0}
+.tm{font-size:28px;font-weight:800;text-align:center;color:var(--gold2);margin:4px 0}
 .badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;background:rgba(212,175,55,.16);color:var(--gold2);border:1px solid rgba(212,175,55,.35)}
 .pbox{background:linear-gradient(135deg,rgba(212,175,55,.12),rgba(229,9,20,.08));border:1px solid rgba(212,175,55,.4);border-radius:14px;padding:12px 14px;margin:10px 0;text-align:center}
 .ptxt{font-size:15px;font-weight:600;color:var(--cream);margin-top:5px}
@@ -30,8 +30,8 @@ button:disabled{opacity:.4;box-shadow:none}
 .stub.peek .shut{transform:translateY(-90%)}
 .clap{width:100%;height:16px;position:absolute;top:0;left:0;background:repeating-linear-gradient(-45deg,var(--gold),var(--gold) 14px,#111 14px,#111 28px);border-bottom:2px solid #000}
 .pill{margin-top:10px;padding:7px 16px;border-radius:99px;background:rgba(212,175,55,.15);border:1px solid var(--gold);color:var(--gold2);font-weight:700;font-size:12px;letter-spacing:.8px}
-.fuse-bar{width:100%;height:8px;background:#23222b;border-radius:4px;overflow:hidden;margin:10px 0}
-.fuse-fill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--red));width:100%;transition:width .3s linear}
+.queue-box{background:#111015;border:1px solid #282733;border-radius:12px;padding:10px 14px;margin:8px 0;text-align:left}
+.q-item{padding:4px 0;font-size:14px;display:flex;justify-content:space-between;align-items:center}
 </style></head><body>
 <div class="hdr"><h1>🎬 MOVIE IMPOSTER</h1><div class="sub">35mm Director's Cut • Live Party Edition</div></div>
 <div id="app"><div class="c mut" style="text-align:center">Loading screening room…</div></div>
@@ -98,19 +98,7 @@ const P=()=>room.players||{},isHost=()=>room.host==uid,isImp=()=>(room.imp||[]).
 const S=(k,o)=>`<select onchange="cfg.${k}=this.value;if('${k}'==='DK')render()">${o.map(([v,l])=>`<option value="${v}" ${cfg[k]==v?'selected':''}>${l}</option>`).join('')}</select>`;
 function beep(f=660){try{const a=new(window.AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=f;g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.14);o.start();o.stop(a.currentTime+.14)}catch(e){}try{navigator.vibrate(20)}catch(e){}}
 
-setInterval(()=>{
-  const e=$('#tm'),f=$('#fuse');
-  if(room&&room.tEnd){
-    const rem=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000));
-    if(e)e.textContent=rem+'s';
-    if(f){
-      const pct=Math.max(0,(rem/15)*100);
-      f.style.width=pct+'%';
-    }
-    if(rem===0&&isHost()&&room.phase=='play'){next()}
-  }
-},300);
-
+setInterval(()=>{const e=$('#tm');if(e&&room&&room.tEnd)e.textContent=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000))+'s'},300);
 const pre=(new URLSearchParams(location.search)).get('r')||'';
 
 function home(){
@@ -168,6 +156,7 @@ function render(){
   const ph=room.phase,pl=P(),ids=Object.keys(pl),s=room.s||{};
   let h=`<div class="c"><div class="row"><div><div class="mut">Room Code</div><div class="big code" style="font-size:22px;text-align:left">${code}</div></div>
   <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:8px 12px" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Copied ✔'">🔗 Invite</button><button class="g" style="width:auto;padding:8px 10px" onclick="leaveRoom()">Exit</button></div></div></div>`;
+  
   if(ph=='lobby'){
     h+=`<div class="c"><b>Cast & Crew (${ids.length})</b>${ids.map(i=>`<div class="row"><span>${esc(pl[i])}${i==room.host?' 👑':''} <span class="mut">• ${SC(i)} pts</span></span>${isHost()&&i!=uid?`<button class="g" onclick="kick('${i}')">Kick</button>`:''}</div>`).join('')}</div>`;
     if(isHost()){
@@ -182,7 +171,7 @@ function render(){
       h+=`${S('C',[[1,'Undercover Mode: Imposter gets twin decoy movie'],[0,'Classic Mode: Imposter sees IMPOSTER']])}
       ${S('PR',[[1,"Director's Cut Prompts: ON"],[0,"Director's Cut Prompts: OFF"]])}
       ${S('I',[['auto','Imposters: Auto'],['1','1 Imposter'],['2','2 Imposters']])}
-      ${S('HM',[['spoken','Clues: Spoken in turn (Hot Potato Blitz)'],['typed','Clues: Typed & revealed together']])}
+      ${S('HM',[['spoken','Clues: Spoken in turn (Multiple Hints)'],['typed','Clues: Typed & revealed together']])}
       ${S('T',[[60,'Discussion 1 min'],[120,'Discussion 2 min'],[180,'Discussion 3 min'],[300,'Discussion 5 min']])}
       ${S('W',[[0,'Endless rounds'],[5,'First to 5 pts'],[10,'First to 10 pts']])}
       ${S('K',[[1,'Show era/vibe clue'],[0,'No clues']])}
@@ -194,29 +183,49 @@ function render(){
     if(s.typed)h+=hintBox()+(isHost()?`<button onclick="talk()">Start Discussion</button>`:'');
     else{
       const cur=room.order[room.turn];
+      const queueList = room.order.map((id, idx) => {
+        const isDone = idx < room.turn;
+        const isCurrent = idx === room.turn;
+        let mark = isDone ? '✓ Done' : (isCurrent ? '👉 Speaking Now' : '⏳ Waiting');
+        let style = isCurrent ? 'color:var(--gold2);font-weight:700;' : (isDone ? 'color:var(--mut);' : '');
+        return `<div class="q-item" style="${style}"><span>${idx+1}. ${esc(pl[id]||'?')} ${id==uid?'(You)':''}</span><span class="badge" style="font-size:10px">${mark}</span></div>`;
+      }).join('');
+
       h+=`<div class="c" style="text-align:center">
-        <div class="mut">🔥 HOT POTATO BLITZ • Turn ${room.turn+1}/${room.order.length}</div>
-        <div class="big" style="margin:4px 0">${esc(pl[cur]||'?')}${cur==uid?' (YOUR TURN!)':''}</div>
-        <div class="tm" id="tm">15s</div>
-        <div class="fuse-bar"><div class="fuse-fill" id="fuse"></div></div>
-        <div class="mut" style="margin-bottom:8px">Shout your clue out loud before time runs out!</div>
-        ${cur==uid||isHost()?`<button class="gold" onclick="next()">Shouted & Done! ⚡</button>`:'' }
+        <div class="mut">🗣️ HINT ROUND • Turn ${room.turn+1} of ${room.order.length}</div>
+        <div class="big" style="margin:4px 0">${esc(pl[cur]||'?')}${cur==uid?' (YOUR TURN TO SAY A HINT!)':''}</div>
+        <div class="queue-box"><div class="mut" style="margin-bottom:6px">Speaking Queue Order:</div>${queueList}</div>
+        <div class="mut" style="margin:8px 0">Say your hint out loud, then tap done when finished.</div>
+        ${cur==uid||isHost()?`<button class="gold" onclick="next()">Done With My Hint ✅</button>`:''}
       </div>`;
     }
   }else if(ph=='talk'){
-    h+=roleCard()+promptBox()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Interrogation Room • Who is bluffing?</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">🗳️ Start Voting</button>`:'');
+    h+=roleCard()+promptBox()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Interrogation Room • Open Discussion!</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">🗳️ Start Voting</button>`:'');
   }else if(ph=='vote'){
-    const v=room.votes||{};h+=`<div class="c"><b>Vote for the Imposter</b> <span class="mut">${Object.keys(v).length}/${ids.length} voted</span>${ids.filter(i=>i!=uid).map(i=>`<button class="${v[uid]==i?'':'g'}" onclick="beep(520);ref('votes/${uid}').set('${i}')">${esc(pl[i])}${v[uid]==i?' 🎯':''}</button>`).join('')}</div>`+(isHost()?`<button class="gold" onclick="reveal()">Reveal Verdict</button>`:'');
+    const v=room.votes||{};
+    h+=`<div class="c">
+      <b>🎯 Choose who you think is the Imposter:</b>
+      <span class="mut" style="display:block;margin-bottom:8px">${Object.keys(v).length}/${ids.length} voted</span>
+      ${ids.filter(i=>i!=uid).map(i=>`<button class="${v[uid]==i?'':'g'}" onclick="beep(520);ref('votes/${uid}').set('${i}')">${esc(pl[i])}${v[uid]==i?' 🎯 (Selected)':''}</button>`).join('')}
+    </div>`+(isHost()?`<button class="gold" onclick="reveal()">Reveal Verdict & Scores</button>`:'');
   }else if(ph=='result'){
     const imp=room.imp||[],v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
     const sorted=[...ids].sort((a,b)=>SC(b)-SC(a)),win=s.win&&SC(sorted[0])>=s.win;
-    h+=`<div class="c" style="text-align:center"><div class="mut">Imposter${imp.length>1?'s':''}</div><div class="big imp">${imp.map(i=>esc(pl[i]||'?')).join(' & ')}</div><div style="margin:8px 0">Movie: <b style="color:var(--gold2)">${esc(room.movie)}</b>${room.decoy?`<br><span class="mut">(Decoy shown: ${esc(room.decoy)})</span>`:''}</div>
-    <div class="badge">${room.caught?'✅ CAUGHT! CREW +1':'😈 ESCAPED! IMPOSTER +2'}</div>${room.guess?`<div style="margin-top:8px">Heist Guess: <b>${esc(room.guess)}</b></div>`:''}</div>`;
+    
+    h+=`<div class="c" style="text-align:center">
+      <div class="mut">The Imposter${imp.length>1?'s':''}</div>
+      <div class="big imp">${imp.map(i=>esc(pl[i]||'?')).join(' & ')}</div>
+      <div style="margin:8px 0">Movie: <b style="color:var(--gold2)">${esc(room.movie)}</b>${room.decoy?`<br><span class="mut">(Decoy shown: ${esc(room.decoy)})</span>`:''}</div>
+      <div class="badge">${room.caught?'✅ IMPOSTER CAUGHT!':'😈 IMPOSTER ESCAPED!'}</div>
+      ${room.guess?`<div style="margin-top:8px">Heist Guess: <b>${esc(room.guess)}</b></div>`:''}
+    </div>`;
+
     if(room.caught&&isImp()&&!room.guess){
       const lp=room.pool||[];
       h+=`<div class="c"><b>⚡ Box Office Heist: Guess the movie (+1 pt steal)</b>${lp.length?lp.map(t=>`<button class="g" data-t="${esc(t)}" onclick="guessTitle(this.dataset.t)">${esc(t)}</button>`).join(''):`<input id="g" placeholder="Movie name"><button onclick="guess()">Submit Guess</button>`}</div>`;
     }
-    if(win)h+=`<div class="c big">🏆 ${esc(pl[sorted[0]])} Wins!</div>`;
+
+    if(win)h+=`<div class="c big">🏆 ${esc(pl[sorted[0]])} Wins Match!</div>`;
     h+=`<div class="c"><b>Standings</b>${sorted.map(i=>`<div class="row"><span>${esc(pl[i])} <span class="mut">(${cnt[i]||0} votes)</span></span><b>${SC(i)} pts</b></div>`).join('')}</div>`+(isHost()?`<button onclick="${win?"ref('scores').remove();":''}ref('phase').set('lobby')">${win?'New Match':'Next Round 🎬'}</button>`:'');
   }
   app.innerHTML=h;bindStub();
@@ -243,22 +252,65 @@ function start(){
   const ids=Object.keys(P()).sort(()=>Math.random()-.5),n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
   const m=pool[Math.random()*pool.length|0],decoy=+cfg.C?pickDecoy(m,pool):null,heist=makePool(m,decoy,pool);
   const pr=+cfg.PR?PROMPTS[Math.random()*PROMPTS.length|0]:[null,null];
-  ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order:[...ids].sort(()=>Math.random()-.5),turn:0,tEnd:Date.now()+15000,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
+  ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order:[...ids].sort(()=>Math.random()-.5),turn:0,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
 }
 function next(){
   const t=room.turn+1;
   if(t>=room.order.length)talk();
-  else ref().update({turn:t,tEnd:Date.now()+15000});
+  else ref().update({turn:t});
 }
 function talk(){ref().update({phase:'talk',tEnd:Date.now()+(room.s.talk||120)*1000})}
 function sendHint(){const v=$('#h').value.trim();if(v)ref('hints/'+uid).set(v)}
 function reveal(){
-  const v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
-  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]),tie=top.length>1&&top[0][1]==top[1][1],caught=!!top.length&&!tie&&room.imp.includes(top[0][0]);
-  Object.keys(P()).forEach(i=>{const imp=room.imp.includes(i),pts=caught?(imp?0:1):(imp?2:0);if(pts)ref('scores/'+i).transaction(s=>(s||0)+pts)});
+  const v=room.votes||{},ids=Object.keys(P()),impList=room.imp||[];
+  let correctVotes=0, totalVotes=0;
+
+  // Calculate scores based on user rules
+  ids.forEach(i=>{
+    const votedFor=v[i];
+    const isImp=impList.includes(i);
+    if(votedFor && impList.includes(votedFor)){
+      if(!isImp) correctVotes++;
+    }
+    totalVotes++;
+  });
+
+  const caught=correctVotes >= Math.ceil((ids.length - impList.length)/2);
+  const everyoneChoseCorrectly = (correctVotes === (ids.length - impList.length));
+
+  ids.forEach(i=>{
+    const isImp=impList.includes(i);
+    const votedFor=v[i];
+    let delta=0;
+
+    if(caught){
+      // Imposter caught
+      if(isImp){
+        delta=0;
+      } else {
+        // Crew member
+        if(votedFor && impList.includes(votedFor)) delta = 1; // +1 if correct
+        else delta = -0.5; // -0.5 if wrong
+      }
+    } else {
+      // Imposter escaped
+      if(isImp){
+        if(everyoneChoseCorrectly) delta = -0.5; // -0.5 if everyone chose imposter
+        else delta = 1; // +1 for escaping
+      } else {
+        if(votedFor && impList.includes(votedFor)) delta = 1; // +1 if they got it right anyway
+        else delta = -0.5; // -0.5 if wrong
+      }
+    }
+
+    if(delta !== 0){
+      ref('scores/'+i).transaction(s => Math.round(((s||0) + delta)*10)/10);
+    }
+  });
+
   ref().update({phase:'result',caught});
 }
-function guessTitle(g){if(!g||room.guess)return;const ok=g.toLowerCase()==room.movie.toLowerCase();if(ok)ref('scores/'+uid).transaction(s=>(s||0)+1);ref('guess').set(g+(ok?' ✔ (+1 Steal!)':' ✘'))}
+function guessTitle(g){if(!g||room.guess)return;const ok=g.toLowerCase()==room.movie.toLowerCase();if(ok)ref('scores/'+uid).transaction(s=>Math.round(((s||0)+1)*10)/10);ref('guess').set(g+(ok?' ✔ (+1 Steal!)':' ✘'))}
 function guess(){const g=$('#g').value.trim();if(g)guessTitle(g)}
 home();
 </script></body></html>
