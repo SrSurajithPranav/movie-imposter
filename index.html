@@ -1,19 +1,262 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Movie Imposter</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Movie Imposter — Director's Cut</title>
 <style>
-:root{--bg:#0b0b0f;--card:#17171f;--red:#e50914;--gold:#f5c518;--t:#f2f2f2}
-*{box-sizing:border-box}body{margin:0 auto;background:var(--bg);color:var(--t);font:16px system-ui,sans-serif;padding:16px;max-width:480px}
-h1{color:var(--gold);letter-spacing:3px;text-align:center;margin:8px 0}.sub{text-align:center;color:#999;margin-bottom:12px}
-.c{background:var(--card);border-radius:14px;padding:16px;margin:12px 0;animation:f .3s}@keyframes f{from{opacity:0;transform:translateY(6px)}}
-button,input,select,textarea{width:100%;padding:12px;margin:6px 0;border-radius:10px;border:1px solid #333;background:#101016;color:var(--t);font-size:16px;font-family:inherit}
-button{background:var(--red);border:0;font-weight:700}button.g{background:#2a2a35}button:disabled{opacity:.4}
-.big{font-size:30px;text-align:center;font-weight:800;color:var(--gold);word-break:break-word}.code{letter-spacing:8px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0}.row button,.row input{width:auto;padding:6px 12px;margin:0}.row input{width:90px}
-.imp{color:var(--red)}.mut{color:#999;font-size:14px}.tm{font-size:28px;text-align:center;color:var(--gold)}
-</style></head><body>
-<h1>🎬 MOVIE IMPOSTER</h1><div class="sub">One movie. One imposter.</div><div id="app"></div>
+:root {
+  --bg: #0b0b0e;
+  --card: #15151b;
+  --card-border: #272630;
+  --red: #e50914;
+  --gold: #d4af37;
+  --gold-bright: #f5c518;
+  --cream: #f4ebd9;
+  --t: #f2f2f2;
+  --mut: #8e8d9a;
+  --green: #22c55e;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0 auto;
+  background: radial-gradient(circle at 50% 0%, #1d1824 0%, var(--bg) 65%);
+  color: var(--t);
+  font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  padding: 16px 16px 48px;
+  max-width: 480px;
+  min-height: 100vh;
+}
+/* Subtle 35mm film grain overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hdr { text-align: center; margin: 6px 0 14px; }
+h1 {
+  color: var(--gold-bright);
+  letter-spacing: 3.5px;
+  font-size: 24px;
+  font-weight: 900;
+  margin: 4px 0;
+  text-shadow: 0 2px 16px rgba(245, 197, 24, 0.25);
+}
+.sub { color: var(--mut); font-size: 13px; letter-spacing: 1px; text-transform: uppercase; }
+.c {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.45);
+  animation: fadeUp .25s ease-out;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } }
+button, input, select, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin: 6px 0;
+  border-radius: 11px;
+  border: 1px solid #2e2d3a;
+  background: #0e0e13;
+  color: var(--t);
+  font-size: 15px;
+  font-family: inherit;
+  transition: transform 0.12s, border-color 0.15s, background 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+button {
+  background: linear-gradient(135deg, #e50914, #b80710);
+  border: 0;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
+}
+button:active:not(:disabled) { transform: scale(0.98); }
+button.g {
+  background: #23232e;
+  border: 1px solid #343444;
+  box-shadow: none;
+}
+button.gold {
+  background: linear-gradient(135deg, #f5c518, #c99c10);
+  color: #111;
+  box-shadow: 0 4px 14px rgba(245, 197, 24, 0.25);
+}
+button:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.big {
+  font-size: 28px;
+  text-align: center;
+  font-weight: 850;
+  color: var(--gold-bright);
+  word-break: break-word;
+  line-height: 1.2;
+}
+.code { letter-spacing: 7px; font-family: ui-monospace, monospace; }
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+}
+.row button, .row input { width: auto; padding: 6px 12px; margin: 0; }
+.row input { width: 92px; }
+.imp { color: var(--red); }
+.mut { color: var(--mut); font-size: 13px; }
+.tm {
+  font-size: 30px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--gold-bright);
+  font-variant-numeric: tabular-nums;
+  margin: 6px 0;
+}
+.badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  background: rgba(212, 175, 55, 0.16);
+  color: var(--gold-bright);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+.prompt-box {
+  background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(229,9,20,0.08));
+  border: 1px solid rgba(212,175,55,0.4);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  text-align: center;
+}
+.prompt-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--cream);
+  margin-top: 5px;
+}
+
+/* 35mm PERFORATED CINEMA TICKET STUB & SHUTTER */
+.ticket-wrap { perspective: 1000px; margin: 12px 0; }
+.ticket-stub {
+  position: relative;
+  width: 100%;
+  min-height: 215px;
+  background: #141311;
+  color: var(--cream);
+  border: 1.5px solid var(--gold);
+  border-radius: 16px;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+  -webkit-mask-image:
+    radial-gradient(circle at 0 50%, transparent 15px, black 16px),
+    radial-gradient(circle at 100% 50%, transparent 15px, black 16px);
+  -webkit-mask-composite: destination-in;
+  mask-composite: intersect;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  cursor: pointer;
+}
+.ticket-stub.is-peeking {
+  transform: rotateX(4deg) scale(1.015);
+}
+.ticket-inner {
+  padding: 22px 26px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 215px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(212,175,55,0.12), transparent 70%);
+}
+.ticket-serial {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #8c826b;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.ticket-divider {
+  width: 82%;
+  border-top: 1px dashed rgba(212, 175, 55, 0.35);
+  margin: 12px 0 8px;
+}
+.ticket-shutter {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(20,20,18,0.92) 30%, #151412 100%),
+    repeating-linear-gradient(-45deg, #1b1a17, #1b1a17 14px, #25231f 14px, #25231f 28px);
+  border-bottom: 3px solid var(--gold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.ticket-stub.is-peeking .ticket-shutter {
+  transform: translateY(-92%);
+}
+.clapper-bars {
+  width: 100%;
+  height: 18px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: repeating-linear-gradient(-45deg, var(--gold), var(--gold) 14px, #111 14px, #111 28px);
+  border-bottom: 2px solid #000;
+}
+.hold-pill {
+  margin-top: 10px;
+  padding: 7px 16px;
+  border-radius: 99px;
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid var(--gold);
+  color: var(--gold-bright);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.8px;
+}
+.heist-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin-top: 8px;
+}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>🎬 MOVIE IMPOSTER</h1>
+  <div class="sub">35mm Director's Cut • Live Party Edition</div>
+</div>
+<div id="app"></div>
+
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
+// உங்கள் ஃபயர்பேஸ் வலை உள்ளமைவை இங்கே ஒட்டவும்// உங்கள் ஃபயர்பேஸ் வலை உள்ளமைவை இங்கே ஒட்டவும்// உங்கள் ஃபயர்பேஸ் வலை உள்ளமைவை இங்கே ஒட்டவும்
+const CFG = { apiKey: "", authDomain: "", databaseURL: "", projectId: "", appId: "" };
 // PASTE YOUR FIREBASE WEB CONFIG HERE
 const CFG={
     apiKey: "AIzaSyA3gGVcVJ5JuvVYsL43mlhzwZuAZoDFe7E",
@@ -24,89 +267,448 @@ const CFG={
     messagingSenderId: "709530139734",
     appId: "1:709530139734:web:d1b4790dfe4e404f494ff7"
   };
-firebase.initializeApp(CFG);const db=firebase.database();
-const LS=(k,v)=>{try{if(v===undefined)return localStorage[k];localStorage[k]=v}catch(e){}};
-let uid=LS('uid')||Math.random().toString(36).slice(2,10);LS('uid',uid);
-let code,room,MOV=[],show=false,lastPhase,lastTurn;
-let cfg={L:'all',P:'0-3000',D:'all',I:'auto',HM:'spoken',T:120,W:0,C:0,K:1,Y1:'',Y2:'',X:''};
-const app=document.getElementById('app'),$=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-fetch('movies.json').then(r=>r.json()).then(j=>MOV=j.movies.map(a=>({t:a[0],l:a[1],y:a[2],d:a[3]})));
-const ref=p=>db.ref('rooms/'+code+(p?'/'+p:''));
-const P=()=>room.players||{},isHost=()=>room.host==uid,isImp=()=>(room.imp||[]).includes(uid),SC=i=>(room.scores||{})[i]||0;
-const S=(k,o)=>`<select onchange="cfg.${k}=this.value">${o.map(([v,l])=>`<option value="${v}" ${cfg[k]==v?'selected':''}>${l}</option>`).join('')}</select>`;
-function beep(){try{const a=new(window.AudioContext||webkitAudioContext)(),o=a.createOscillator();o.connect(a.destination);o.frequency.value=660;o.start();o.stop(a.currentTime+.15)}catch(e){}try{navigator.vibrate(200)}catch(e){}}
-setInterval(()=>{const e=$('#tm');if(e&&room&&room.tEnd)e.textContent=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000))+'s'},400);
-const pre=(new URLSearchParams(location.search)).get('r')||'';
-function home(){app.innerHTML=`<div class="c"><input id="n" placeholder="Your name" maxlength="14" value="${esc(LS('ln')||'')}"><button onclick="create()">Create room</button></div>
-<div class="c"><input id="c" placeholder="6-digit room code" inputmode="numeric" maxlength="6" value="${esc(pre)}"><button class="g" onclick="joinRoom()">Join room</button></div>`}
-function name(){const n=$('#n').value.trim();if(!n)alert('Enter your name');return n}
-async function create(){const n=name();if(!n)return;const c=String(100000+Math.random()*900000|0);await db.ref('rooms/'+c).set({host:uid,phase:'lobby'});enter(c,n)}
-async function joinRoom(){const n=name();if(!n)return;const c=$('#c').value.trim();const s=await db.ref('rooms/'+c).get();
-if(!s.exists())return alert('Room not found');const v=s.val(),pl=v.players||{};
-const old=Object.keys(pl).find(i=>pl[i].toLowerCase()==n.toLowerCase());
-if(old){uid=old;LS('uid',uid)}else if(v.phase!='lobby')return alert('Game already started. Rejoin with your exact old name.');
-enter(c,n)}
-function enter(c,n){code=c;LS('rc',c);LS('ln',n);ref('players/'+uid).set(n);ref().on('value',x=>{room=x.val();if(!room){LS('rc','');alert('Room closed');return location.reload()}
-if(!P()[uid]){LS('rc','');return location.reload()}if(room.phase!=lastPhase){show=false;lastPhase=room.phase}
-const my=room.phase=='play'&&room.order&&room.order[room.turn]==uid&&!(room.s||{}).typed;if(my&&lastTurn!=room.turn)beep();lastTurn=my?room.turn:null;render()})}
-(async()=>{const c=LS('rc');if(c&&!pre){const s=await db.ref('rooms/'+c+'/players/'+uid).get();if(s.exists())enter(c,s.val())}})();
-function roleCard(){const r=room,s=r.s||{};let b;
-if(!show)b=`<div class="mut">Make sure nobody is peeking</div>`;
-else if(isImp()&&r.decoy)b=`<div class="mut">Your movie</div><div class="big">${esc(r.decoy)}</div>`;
-else if(isImp())b=`<div class="big imp">IMPOSTER</div><div class="mut">No movie! Bluff your hint.</div>${s.clue?`<div class="mut">Clue: ${esc(r.ml)}, ${Math.floor(r.my/10)*10}s</div>`:''}`;
-else b=`<div class="mut">Your movie</div><div class="big">${esc(r.movie)}</div>${s.clue?`<div class="mut">${esc(r.ml)} • ${r.my}</div>`:''}`;
-return `<div class="c" style="text-align:center">${b}<button class="g" onclick="show=!show;if(show)beep();render()">${show?'Hide':'Show my role'}</button></div>`}
-function hintBox(){const h=room.hints||{},ids=Object.keys(P());
-if(ids.every(i=>h[i]))return `<div class="c"><b>Hints</b>${ids.map(i=>`<div class="row"><span>${esc(P()[i])}</span><b>${esc(h[i])}</b></div>`).join('')}</div>`;
-return `<div class="c">${h[uid]?'<div class="mut">Hint sent ✔</div>':`<input id="h" placeholder="Your one-word hint" maxlength="30"><button onclick="sendHint()">Send hint</button>`}<div class="mut">${Object.keys(h).length}/${ids.length} submitted</div></div>`}
-function render(){const ph=room.phase,pl=P(),ids=Object.keys(pl),s=room.s||{};let h=`<div class="c"><div class="mut">Room code</div><div class="big code">${code}</div><button class="g" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Link copied ✔'">Copy invite link</button></div>`;
-if(ph=='lobby'){
-h+=`<div class="c"><b>Players (${ids.length})</b>${ids.map(i=>`<div class="row"><span>${esc(pl[i])}${i==room.host?' 👑':''} <span class="mut">${SC(i)} pts</span></span>${isHost()&&i!=uid?`<button class="g" onclick="kick('${i}')">Kick</button>`:''}</div>`).join('')}</div>`;
-if(isHost())h+=`<div class="c"><b>Settings</b>${S('L',[['all','All languages'],...['English','Tamil','Hindi','Telugu','Malayalam','Kannada','Korean','Japanese'].map(l=>[l,l])])}
-${S('P',[['0-3000','Any year'],['0-1989','Before 1990'],['1990-1999','1990s'],['2000-2009','2000s'],['2010-2019','2010s'],['2020-3000','2020s']])}
-<div class="row"><span class="mut">Custom years (optional)</span><input type="number" placeholder="from" value="${cfg.Y1}" onchange="cfg.Y1=this.value"><input type="number" placeholder="to" value="${cfg.Y2}" onchange="cfg.Y2=this.value"></div>
-${S('D',[['all','Any difficulty'],['easy','Easy'],['medium','Medium'],['hard','Hard']])}
-${S('I',[['auto','Imposters: auto'],['1','1 imposter'],['2','2 imposters']])}
-${S('HM',[['spoken','Hints: spoken, in turn'],['typed','Hints: typed, revealed together']])}
-${S('T',[[60,'Discussion 1 min'],[120,'Discussion 2 min'],[180,'Discussion 3 min'],[300,'Discussion 5 min']])}
-${S('W',[[0,'Endless rounds'],[5,'First to 5 pts'],[10,'First to 10 pts']])}
-${S('C',[[0,'Imposter knows they are imposter'],[1,'Confused mode: imposter gets a fake movie']])}
-${S('K',[[1,'Show year/language clues'],[0,'No clues']])}
-<textarea rows="3" placeholder="Custom movie pack (optional): one title per line" oninput="cfg.X=this.value">${esc(cfg.X)}</textarea>
-<button onclick="start()" ${ids.length<3?'disabled':''}>${ids.length<3?'Need 3+ players':'Start game'}</button></div>`;
-else h+=`<div class="c mut">Waiting for the host to start…</div>`}
-else if(ph=='play'){h+=roleCard();
-if(s.typed)h+=hintBox()+(isHost()?`<button onclick="talk()">Start discussion</button>`:'');
-else{const cur=room.order[room.turn];h+=`<div class="c" style="text-align:center"><div class="mut">Say ONE hint out loud. Turn ${room.turn+1}/${room.order.length}</div><div class="big">${esc(pl[cur]||'?')}${cur==uid?' (you!)':''}</div><div class="tm" id="tm"></div>${cur==uid||isHost()?`<button onclick="next()">Done ✅</button>`:''}</div>`}}
-else if(ph=='talk'){h+=roleCard()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Discuss! Who is the imposter?</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">Start voting</button>`:'')}
-else if(ph=='vote'){const v=room.votes||{};h+=`<div class="c"><b>Who is the imposter?</b> <span class="mut">${Object.keys(v).length}/${ids.length} voted</span>${ids.filter(i=>i!=uid).map(i=>`<button class="${v[uid]==i?'':'g'}" onclick="ref('votes/${uid}').set('${i}')">${esc(pl[i])}</button>`).join('')}</div>`+(isHost()?`<button onclick="reveal()">Reveal results</button>`:'')}
-else if(ph=='result'){const imp=room.imp||[],v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
-const sorted=ids.sort((a,b)=>SC(b)-SC(a)),win=s.win&&SC(sorted[0])>=s.win;
-h+=`<div class="c"><div class="mut">Imposter${imp.length>1?'s':''}</div><div class="big imp">${imp.map(i=>esc(pl[i]||'?')).join(' & ')}</div><div class="mut">Movie: <b>${esc(room.movie)}</b>${room.decoy?` (imposter saw: ${esc(room.decoy)})`:''}</div>
-<div class="mut">${room.caught?'✅ Caught! Crew +1':'😈 Imposters escaped! +2'}</div>${room.guess?`<div>Imposter guessed: <b>${esc(room.guess)}</b></div>`:''}</div>`;
-if(room.caught&&isImp()&&!room.guess)h+=`<div class="c"><b>Last chance: guess the movie (+1)</b><input id="g" placeholder="Movie name"><button onclick="guess()">Submit guess</button></div>`;
-if(win)h+=`<div class="c big">🏆 ${esc(pl[sorted[0]])} wins the match!</div>`;
-h+=`<div class="c"><b>Scoreboard</b>${sorted.map(i=>`<div class="row"><span>${esc(pl[i])} <span class="mut">(${cnt[i]||0} votes)</span></span><b>${SC(i)}</b></div>`).join('')}</div>`+(isHost()?`<button onclick="${win?"ref('scores').remove();":''}ref('phase').set('lobby')">${win?'New match':'Next round'}</button>`:'')}
-app.innerHTML=h}
-function kick(i){ref('players/'+i).remove()}
-function start(){let[a,b]=cfg.P.split('-').map(Number);if(cfg.Y1)a=+cfg.Y1;if(cfg.Y2)b=+cfg.Y2;
-let pool,custom=cfg.X.split('\n').map(x=>x.trim()).filter(Boolean);
-pool=custom.length?custom.map(t=>({t,l:'Custom',y:'',d:''})):MOV.filter(m=>(cfg.L=='all'||m.l==cfg.L)&&m.y>=a&&m.y<=b&&(cfg.D=='all'||m.d==cfg.D));
-if(!pool.length)return alert('No movies match. Loosen the filters.');
-const ids=Object.keys(P()).sort(()=>Math.random()-.5),n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
-const m=pool[Math.random()*pool.length|0];let decoy=null;
-if(+cfg.C){const alt=(custom.length?pool:MOV.filter(x=>x.l==m.l)).filter(x=>x.t!=m.t);if(alt.length)decoy=alt[Math.random()*alt.length|0].t}
-const clue=+cfg.K&&m.y;
-ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l,decoy,imp:ids.slice(0,k),order:ids.sort(()=>Math.random()-.5),turn:0,tEnd:Date.now()+20000,hints:null,votes:null,guess:null,caught:null,
-s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!clue}})}
-function next(){const t=room.turn+1;if(t>=room.order.length)talk();else ref().update({turn:t,tEnd:Date.now()+20000})}
-function talk(){ref().update({phase:'talk',tEnd:Date.now()+(room.s.talk||120)*1000})}
-function sendHint(){const v=$('#h').value.trim();if(v)ref('hints/'+uid).set(v)}
-function reveal(){const v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
-const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]),tie=top.length>1&&top[0][1]==top[1][1],caught=!!top.length&&!tie&&room.imp.includes(top[0][0]);
-Object.keys(P()).forEach(i=>{const imp=room.imp.includes(i),pts=caught?(imp?0:1):(imp?2:0);if(pts)ref('scores/'+i).transaction(s=>(s||0)+pts)});
-ref().update({phase:'result',caught})}
-function guess(){const g=$('#g').value.trim();if(!g)return;const ok=g.toLowerCase()==room.movie.toLowerCase();if(ok)ref('scores/'+uid).transaction(s=>(s||0)+1);ref('guess').set(g+(ok?' ✔':' ✘'))}
+firebase.initializeApp(CFG);
+const db = firebase.database();
+const LS = (k, v) => { try { if (v === undefined) return localStorage[k]; localStorage[k] = v; } catch (e) {} };
+let uid = LS('uid') || Math.random().toString(36).slice(2, 10);
+LS('uid', uid);
+
+let code, room, MOV = [], PACKS = { prompts: [], decks: [] }, lastPhase, lastTurn;
+let cfg = {
+  DK: 'standard', L: 'all', P: '0-3000', D: 'all',
+  I: 'auto', HM: 'spoken', T: 120, W: 0,
+  C: 0, K: 1, PR: 1, Y1: '', Y2: '', X: ''
+};
+
+const app = document.getElementById('app'), $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// Load both movies.json and packs.json
+fetch('movies.json').then(r => r.json()).then(j => {
+  MOV = j.movies.map(a => ({ t: a[0], l: a[1], y: a[2], d: a[3] }));
+}).catch(() => {});
+
+fetch('packs.json').then(r => r.json()).then(j => {
+  PACKS = j;
+  if (room && room.phase === 'lobby') render();
+}).catch(() => {});
+
+const ref = p => db.ref('rooms/' + code + (p ? '/' + p : ''));
+const P = () => room.players || {}, isHost = () => room.host == uid, isImp = () => (room.imp || []).includes(uid), SC = i => (room.scores || {})[i] || 0;
+const S = (k, o) => `<select onchange="cfg.${k}=this.value;if('${k}'==='DK')render()">${o.map(([v, l]) => `<option value="${v}" ${cfg[k] == v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+
+function sfx(freq = 660, dur = 0.14) {
+  try {
+    const a = new (window.AudioContext || webkitAudioContext)(), o = a.createOscillator(), g = a.createGain();
+    o.connect(g); g.connect(a.destination);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(0.18, a.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+    o.start(); o.stop(a.currentTime + dur);
+  } catch (e) {}
+  try { navigator.vibrate(25); } catch (e) {}
+}
+
+setInterval(() => {
+  const e = $('#tm');
+  if (e && room && room.tEnd) e.textContent = Math.max(0, Math.ceil((room.tEnd - Date.now()) / 1000)) + 's';
+}, 300);
+
+const pre = (new URLSearchParams(location.search)).get('r') || '';
+
+function home() {
+  app.innerHTML = `
+    <div class="c">
+      <div class="mut" style="margin-bottom:4px">Player Ticket Name</div>
+      <input id="n" placeholder="Your name" maxlength="14" value="${esc(LS('ln') || '')}">
+      <button onclick="create()">🎟️ Create Screening Room</button>
+    </div>
+    <div class="c">
+      <div class="mut" style="margin-bottom:4px">Have an Invite Code?</div>
+      <input id="c" placeholder="6-digit room code" inputmode="numeric" maxlength="6" value="${esc(pre)}">
+      <button class="g" onclick="joinRoom()">Join Room</button>
+    </div>`;
+}
+
+function name() {
+  const n = $('#n').value.trim();
+  if (!n) alert('Enter your name');
+  return n;
+}
+
+async function create() {
+  const n = name(); if (!n) return;
+  const c = String(100000 + Math.random() * 900000 | 0);
+  await db.ref('rooms/' + c).set({ host: uid, phase: 'lobby' });
+  enter(c, n);
+}
+
+async function joinRoom() {
+  const n = name(); if (!n) return;
+  const c = $('#c').value.trim();
+  const s = await db.ref('rooms/' + c).get();
+  if (!s.exists()) return alert('Room not found');
+  const v = s.val(), pl = v.players || {};
+  const old = Object.keys(pl).find(i => pl[i].toLowerCase() == n.toLowerCase());
+  if (old) { uid = old; LS('uid', uid); }
+  else if (v.phase != 'lobby') return alert('Game already started. Rejoin with your exact old name.');
+  enter(c, n);
+}
+
+function enter(c, n) {
+  code = c; LS('rc', c); LS('ln', n);
+  ref('players/' + uid).set(n);
+  ref().on('value', x => {
+    room = x.val();
+    if (!room) { LS('rc', ''); alert('Room closed'); return location.reload(); }
+    if (!P()[uid]) { LS('rc', ''); return location.reload(); }
+    if (room.phase != lastPhase) { lastPhase = room.phase; }
+    const my = room.phase == 'play' && room.order && room.order[room.turn] == uid && !(room.s || {}).typed;
+    if (my && lastTurn != room.turn) sfx(740, 0.2);
+    lastTurn = my ? room.turn : null;
+    render();
+  });
+}
+
+(async () => {
+  const c = LS('rc');
+  if (c && !pre) {
+    const s = await db.ref('rooms/' + c + '/players/' + uid).get();
+    if (s.exists()) enter(c, s.val());
+  }
+})();
+
+// Press-and-Hold 35mm Ticket Stub Component
+function roleCard() {
+  const r = room, s = r.s || {};
+  let inner = '';
+  if (isImp() && r.decoy) {
+    inner = `
+      <div class="ticket-serial">ADMIT ONE • SCREEN 01</div>
+      <div class="mut">Your Assigned Feature</div>
+      <div class="big" style="margin:6px 0">${esc(r.decoy)}</div>
+      ${s.clue && r.my ? `<div class="ticket-divider"></div><div class="mut">${esc(r.ml)} • ${r.my}</div>` : ''}`;
+  } else if (isImp()) {
+    const decade = r.my ? `${Math.floor(r.my / 10) * 10}s` : '';
+    inner = `
+      <div class="ticket-serial">UNLISTED CAST • BLUFF</div>
+      <div class="big imp" style="margin:4px 0">🎭 IMPOSTER</div>
+      <div class="mut">Blend in without giving yourself away!</div>
+      ${s.clue ? `<div class="ticket-divider"></div><div class="badge" style="margin-top:4px">${esc(r.mHint || (r.ml + (decade ? ' • ' + decade : '')))}</div>` : ''}`;
+  } else {
+    inner = `
+      <div class="ticket-serial">ADMIT ONE • SCREEN 01</div>
+      <div class="mut">Your Assigned Feature</div>
+      <div class="big" style="margin:6px 0">${esc(r.movie)}</div>
+      ${s.clue ? `<div class="ticket-divider"></div><div class="mut">${esc(r.ml)}${r.my ? ' • ' + r.my : ''}</div>` : ''}`;
+  }
+
+  return `
+    <div class="ticket-wrap">
+      <div class="ticket-stub" id="ticketStub">
+        <div class="ticket-shutter">
+          <div class="clapper-bars"></div>
+          <div style="font-size:22px;margin-top:8px">🎟️</div>
+          <div style="font-weight:800;letter-spacing:1.5px;color:var(--cream);margin-top:4px">CONFIDENTIAL REEL</div>
+          <div class="mut" style="margin-top:2px">Shield your screen from the room</div>
+          <div class="hold-pill">HOLD THUMB TO PEEK</div>
+        </div>
+        <div class="ticket-inner">${inner}</div>
+      </div>
+    </div>`;
+}
+
+function bindTicketHold() {
+  const el = document.getElementById('ticketStub');
+  if (!el) return;
+  let timer = null;
+  const open = (e) => {
+    if (e.cancelable) e.preventDefault();
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      el.classList.add('is-peeking');
+      try { navigator.vibrate(15); } catch (err) {}
+    }, 120);
+  };
+  const close = () => {
+    clearTimeout(timer);
+    if (el.classList.contains('is-peeking')) {
+      el.classList.remove('is-peeking');
+      try { navigator.vibrate(8); } catch (err) {}
+    }
+  };
+  el.addEventListener('pointerdown', open);
+  el.addEventListener('pointerup', close);
+  el.addEventListener('pointerleave', close);
+  el.addEventListener('pointercancel', close);
+}
+
+function promptBanner() {
+  if (!room.promptTag || !room.promptText) return '';
+  return `
+    <div class="prompt-box">
+      <span class="badge">🎬 DIRECTOR'S CUT: ${esc(room.promptTag)}</span>
+      <div class="prompt-text">${esc(room.promptText)}</div>
+    </div>`;
+}
+
+function hintBox() {
+  const h = room.hints || {}, ids = Object.keys(P());
+  if (ids.every(i => h[i])) {
+    return `<div class="c"><b>Clue Reel</b>${ids.map(i => `<div class="row"><span>${esc(P()[i])}</span><b>${esc(h[i])}</b></div>`).join('')}</div>`;
+  }
+  return `<div class="c">${h[uid]
+    ? '<div class="mut" style="text-align:center">Clue locked in ✔</div>'
+    : `<input id="h" placeholder="Type your clue (respect the prompt!)" maxlength="42"><button onclick="sendHint()">Lock In Clue</button>`}
+    <div class="mut" style="text-align:center;margin-top:4px">${Object.keys(h).length}/${ids.length} submitted</div>
+  </div>`;
+}
+
+function render() {
+  const ph = room.phase, pl = P(), ids = Object.keys(pl), s = room.s || {};
+  let h = `
+    <div class="c">
+      <div class="row">
+        <div>
+          <div class="mut">Screening Code</div>
+          <div class="big code" style="text-align:left;font-size:24px">${code}</div>
+        </div>
+        <button class="g" style="width:auto;padding:10px 14px" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Copied ✔'">🔗 Invite Link</button>
+      </div>
+    </div>`;
+
+  if (ph == 'lobby') {
+    h += `<div class="c"><b>Cast & Crew (${ids.length})</b>${ids.map(i => `
+      <div class="row">
+        <span>${esc(pl[i])}${i == room.host ? ' 👑' : ''} <span class="mut">• ${SC(i)} pts</span></span>
+        ${isHost() && i != uid ? `<button class="g" onclick="kick('${i}')">Kick</button>` : ''}
+      </div>`).join('')}</div>`;
+
+    if (isHost()) {
+      const deckOpts = [
+        ['standard', '📚 Full Database (300+ Movies Filters)'],
+        ...(PACKS.decks || []).map(d => [d.id, d.name])
+      ];
+      h += `<div class="c"><b>Director's Lobby Settings</b>
+        <div class="mut" style="margin-top:6px">Movie Reel / Curated Vibe Deck</div>
+        ${S('DK', deckOpts)}`;
+
+      if (cfg.DK === 'standard') {
+        h += `
+          ${S('L', [['all', 'All languages'], ...['English', 'Tamil', 'Hindi', 'Telugu', 'Malayalam', 'Kannada', 'Korean', 'Japanese'].map(l => [l, l])])}
+          ${S('P', [['0-3000', 'Any release era'], ['0-1989', 'Before 1990'], ['1990-1999', '1990s'], ['2000-2009', '2000s'], ['2010-2019', '2010s'], ['2020-3000', '2020s']])}
+          <div class="row"><span class="mut">Custom year range</span><input type="number" placeholder="from" value="${cfg.Y1}" onchange="cfg.Y1=this.value"><input type="number" placeholder="to" value="${cfg.Y2}" onchange="cfg.Y2=this.value"></div>
+          ${S('D', [['all', 'Any difficulty'], ['easy', 'Easy (Blockbusters)'], ['medium', 'Medium'], ['hard', 'Hard (Cinephile)']])}`;
+      }
+
+      h += `
+        <div class="mut" style="margin-top:6px">Imposter & Twist Mechanics</div>
+        ${S('C', [[0, 'Classic Mode: Imposter sees IMPOSTER'], [1, 'Undercover Cut: Imposter gets a twin decoy movie']])}
+        ${S('PR', [[1, "Director's Cut Prompts: ON (Recommended)"], [0, "Director's Cut Prompts: OFF (Free hints)"]])}
+        ${S('I', [['auto', 'Imposters: Auto (2 for 7+ players)'], ['1', '1 Imposter'], ['2', '2 Imposters']])}
+        ${S('HM', [['spoken', 'Clues: Spoken out loud in turn'], ['typed', 'Clues: Typed & revealed together']])}
+        ${S('T', [[60, 'Discussion: 1 min'], [120, 'Discussion: 2 min'], [180, 'Discussion: 3 min'], [300, 'Discussion: 5 min']])}
+        ${S('W', [[0, 'Endless rounds'], [5, 'Match target: First to 5 pts'], [10, 'Match target: First to 10 pts']])}
+        ${S('K', [[1, 'Imposter Aid: Show era/vibe hint'], [0, 'Hardcore: Zero clues for Imposter']])}
+        <textarea rows="2" placeholder="Custom movie pack (optional): one title per line" oninput="cfg.X=this.value">${esc(cfg.X)}</textarea>
+        <button onclick="start()" ${ids.length < 3 ? 'disabled' : ''}>${ids.length < 3 ? 'Need 3+ Players to Roll Camera' : '🎬 Action! Start Round'}</button>
+      </div>`;
+    } else {
+      h += `<div class="c mut" style="text-align:center">Waiting for the Director (${esc(pl[room.host] || 'Host')}) to start the reel…</div>`;
+    }
+  } else if (ph == 'play') {
+    h += roleCard() + promptBanner();
+    if (s.typed) {
+      h += hintBox() + (isHost() ? `<button onclick="talk()">Open Floor Discussion</button>` : '');
+    } else {
+      const cur = room.order[room.turn];
+      h += `<div class="c" style="text-align:center">
+        <div class="mut">Speak ONE clue out loud • Turn ${room.turn + 1} of ${room.order.length}</div>
+        <div class="big" style="margin:6px 0">${esc(pl[cur] || '?')}${cur == uid ? ' (Your Turn!)' : ''}</div>
+        <div class="tm" id="tm"></div>
+        ${cur == uid || isHost() ? `<button onclick="next()">Done Speaking ✅</button>` : ''}
+      </div>`;
+    }
+  } else if (ph == 'talk') {
+    h += roleCard() + promptBanner() + (s.typed ? hintBox() : '') + `
+      <div class="c" style="text-align:center">
+        <div class="mut">Interrogation Room • Spot the Imposter!</div>
+        <div class="tm" id="tm"></div>
+      </div>` + (isHost() ? `<button onclick="ref('phase').set('vote')">🗳️ Call the Vote</button>` : '');
+  } else if (ph == 'vote') {
+    const v = room.votes || {};
+    h += `<div class="c">
+      <div class="row"><b>Cast Your Accusation</b><span class="mut">${Object.keys(v).length}/${ids.length} voted</span></div>
+      ${ids.filter(i => i != uid).map(i => `<button class="${v[uid] == i ? '' : 'g'}" onclick="sfx(520,0.08);ref('votes/${uid}').set('${i}')">${esc(pl[i])}${v[uid] == i ? ' 🎯' : ''}</button>`).join('')}
+    </div>` + (isHost() ? `<button class="gold" onclick="reveal()">Reveal Box Office Verdict</button>` : '');
+  } else if (ph == 'result') {
+    const imp = room.imp || [], v = room.votes || {}, cnt = {};
+    Object.values(v).forEach(x => cnt[x] = (cnt[x] || 0) + 1);
+    const sorted = [...ids].sort((a, b) => SC(b) - SC(a)), win = s.win && SC(sorted[0]) >= s.win;
+
+    h += `<div class="c" style="text-align:center">
+      <div class="mut">The Imposter${imp.length > 1 ? 's' : ''}</div>
+      <div class="big imp" style="margin:4px 0">${imp.map(i => esc(pl[i] || '?')).join(' & ')}</div>
+      <div style="margin:8px 0">True Feature: <b style="color:var(--gold-bright)">${esc(room.movie)}</b>${room.decoy ? `<br><span class="mut">(Undercover Decoy: ${esc(room.decoy)})</span>` : ''}</div>
+      <div class="badge">${room.caught ? '✅ CAUGHT BY THE CREW (+1 PT)' : '😈 IMPOSTER ESCAPED (+2 PTS)'}</div>
+      ${room.guess ? `<div style="margin-top:10px">Box Office Heist Guess: <b>${esc(room.guess)}</b></div>` : ''}
+    </div>`;
+
+    if (room.caught && isImp() && !room.guess) {
+      const lineup = room.pool || [];
+      h += `<div class="c">
+        <b>⚡ Box Office Heist: Guess the true movie (+1 pt steal)</b>
+        ${lineup.length ? `<div class="heist-grid">${lineup.map(title => `<button class="g" onclick="guessTitle('${esc(title).replace(/'/g, "\\'")}')">${esc(title)}</button>`).join('')}</div>`
+        : `<input id="g" placeholder="Movie name"><button onclick="guess()">Submit Heist Guess</button>`}
+      </div>`;
+    }
+
+    if (win) h += `<div class="c big">🏆 ${esc(pl[sorted[0]])} Wins the Match!</div>`;
+    h += `<div class="c"><b>Box Office Standings</b>${sorted.map(i => `
+      <div class="row">
+        <span>${esc(pl[i])} <span class="mut">(${cnt[i] || 0} votes)</span></span>
+        <b>${SC(i)} pts</b>
+      </div>`).join('')}</div>` +
+      (isHost() ? `<button onclick="${win ? "ref('scores').remove();" : ''}ref('phase').set('lobby')">${win ? 'Start New Match' : 'Next Round 🎬'}</button>` : '');
+  }
+
+  app.innerHTML = h;
+  bindTicketHold();
+}
+
+function kick(i) { ref('players/' + i).remove(); }
+
+// Smart Twin Matcher for movies.json (matches language, difficulty, and closest release year)
+function pickSmartDecoy(m, pool) {
+  if (m.decoys && m.decoys.length) {
+    return m.decoys[Math.random() * m.decoys.length | 0];
+  }
+  const candidates = (MOV.length ? MOV : pool).filter(x => x.l == m.l && x.t != m.t);
+  if (!candidates.length) return null;
+  const ranked = candidates
+    .map(x => ({ t: x.t, score: (x.d == m.d ? 0 : 15) + Math.abs((x.y || 2015) - (m.y || 2015)) }))
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 6);
+  return ranked[Math.random() * ranked.length | 0].t;
+}
+
+// Builds a 5-choice Box Office Heist suspect pool
+function buildHeistPool(m, decoy, pool) {
+  if (m.pool && m.pool.length >= 4) {
+    return [...m.pool].sort(() => Math.random() - 0.5);
+  }
+  const set = new Set([m.t]);
+  if (decoy) set.add(decoy);
+  const sameLang = (MOV.length ? MOV : pool)
+    .filter(x => x.l == m.l && !set.has(x.t))
+    .sort((a, b) => Math.abs((a.y || 2015) - (m.y || 2015)) - Math.abs((b.y || 2015) - (m.y || 2015)));
+  for (const item of sameLang) {
+    if (set.size >= 5) break;
+    set.add(item.t);
+  }
+  return Array.from(set).sort(() => Math.random() - 0.5);
+}
+
+function start() {
+  let [a, b] = cfg.P.split('-').map(Number);
+  if (cfg.Y1) a = +cfg.Y1;
+  if (cfg.Y2) b = +cfg.Y2;
+
+  let pool = [];
+  const custom = cfg.X.split('\n').map(x => x.trim()).filter(Boolean);
+  if (custom.length) {
+    pool = custom.map(t => ({ t, l: 'Custom', y: '', d: '' }));
+  } else if (cfg.DK !== 'standard') {
+    const deck = (PACKS.decks || []).find(d => d.id === cfg.DK);
+    pool = deck ? deck.movies : [];
+  } else {
+    pool = MOV.filter(m => (cfg.L == 'all' || m.l == cfg.L) && m.y >= a && m.y <= b && (cfg.D == 'all' || m.d == cfg.D));
+  }
+
+  if (!pool.length) return alert('No movies match. Loosen the filters.');
+
+  const ids = Object.keys(P()).sort(() => Math.random() - 0.5);
+  const n = ids.length;
+  const k = cfg.I == 'auto' ? (n >= 7 ? 2 : 1) : Math.min(+cfg.I, Math.max(1, Math.floor((n - 1) / 2)));
+  const m = pool[Math.random() * pool.length | 0];
+
+  let decoy = null;
+  if (+cfg.C) decoy = pickSmartDecoy(m, pool);
+
+  const heistPool = buildHeistPool(m, decoy, pool);
+  const clue = +cfg.K && (m.y || m.hint);
+
+  let promptTag = null, promptText = null;
+  if (+cfg.PR && PACKS.prompts && PACKS.prompts.length) {
+    const pr = PACKS.prompts[Math.random() * PACKS.prompts.length | 0];
+    promptTag = pr.tag;
+    promptText = pr.text;
+  }
+
+  ref().update({
+    phase: 'play',
+    movie: m.t,
+    my: m.y || 0,
+    ml: m.l || 'Cinema',
+    mHint: m.hint || null,
+    decoy,
+    pool: heistPool,
+    promptTag,
+    promptText,
+    imp: ids.slice(0, k),
+    order: [...ids].sort(() => Math.random() - 0.5),
+    turn: 0,
+    tEnd: Date.now() + 25000,
+    hints: null,
+    votes: null,
+    guess: null,
+    caught: null,
+    s: { typed: cfg.HM == 'typed', talk: +cfg.T, win: +cfg.W, clue: !!clue }
+  });
+}
+
+function next() {
+  const t = room.turn + 1;
+  if (t >= room.order.length) talk();
+  else ref().update({ turn: t, tEnd: Date.now() + 25000 });
+}
+
+function talk() {
+  ref().update({ phase: 'talk', tEnd: Date.now() + (room.s.talk || 120) * 1000 });
+}
+
+function sendHint() {
+  const v = $('#h').value.trim();
+  if (v) ref('hints/' + uid).set(v);
+}
+
+function reveal() {
+  const v = room.votes || {}, cnt = {};
+  Object.values(v).forEach(x => cnt[x] = (cnt[x] || 0) + 1);
+  const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]);
+  const tie = top.length > 1 && top[0][1] == top[1][1];
+  const caught = !!top.length && !tie && room.imp.includes(top[0][0]);
+  Object.keys(P()).forEach(i => {
+    const imp = room.imp.includes(i);
+    const pts = caught ? (imp ? 0 : 1) : (imp ? 2 : 0);
+    if (pts) ref('scores/' + i).transaction(s => (s || 0) + pts);
+  });
+  ref().update({ phase: 'result', caught });
+}
+
+function guessTitle(g) {
+  if (!g || room.guess) return;
+  const ok = g.toLowerCase() == room.movie.toLowerCase();
+  if (ok) ref('scores/' + uid).transaction(s => (s || 0) + 1);
+  ref('guess').set(g + (ok ? ' ✔ (+1 Steal!)' : ' ✘'));
+}
+
+function guess() {
+  const g = $('#g').value.trim();
+  if (g) guessTitle(g);
+}
+
 home();
-</script></body></html>
+</script>
+</body>
+</html>
