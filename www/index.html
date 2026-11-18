@@ -1,0 +1,374 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Movie Imposter — Director's Cut</title>
+<style>
+:root{--ink:#09090b;--panel:rgba(20,20,24,.86);--panel2:#111116;--line:rgba(255,255,255,.09);--red:#e31b32;--red2:#ff4058;--gold:#ddb96c;--cream:#f3efe6;--text:#f7f5ef;--mut:#99969f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0 auto;color:var(--text);font:500 15px/1.5 Manrope,system-ui,sans-serif;padding:28px 18px 56px;max-width:1040px;min-height:100vh;background:
+linear-gradient(180deg,rgba(8,8,10,.25),rgba(8,8,10,.94) 72%),radial-gradient(ellipse at 50% -10%,rgba(181,47,55,.22),transparent 42%),#09090b}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.16;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.15'/%3E%3C/svg%3E")}
+.hdr{display:flex;align-items:flex-end;justify-content:center;margin:0 0 26px;border-bottom:1px solid var(--line);padding:0 0 18px}
+h1{font-family:"Playfair Display",serif;color:var(--cream);letter-spacing:-1.5px;font-size:29px;font-weight:800;margin:0;text-transform:uppercase}
+h1 span{color:var(--red2)}
+.sub{display:none}
+#app{max-width:620px;margin:auto}
+.c{background:linear-gradient(145deg,rgba(24,24,29,.94),rgba(14,14,17,.94));border:1px solid var(--line);border-radius:18px;padding:16px;margin:10px 0;box-shadow:0 18px 50px rgba(0,0,0,.32);animation:f .32s cubic-bezier(.2,.8,.2,1)}
+@keyframes f{from{opacity:0;transform:translateY(8px)}}
+input,select,textarea{width:100%;padding:14px 15px;margin:6px 0;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:#0b0b0e;color:var(--text);font:600 15px Manrope,sans-serif;outline:none;transition:.2s}
+input:focus,select:focus,textarea:focus{border-color:rgba(227,27,50,.7);box-shadow:0 0 0 3px rgba(227,27,50,.09)}
+input::placeholder,textarea::placeholder{color:#696771}
+button{width:100%;padding:13px 16px;margin:6px 0;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(135deg,#ed2037,#c90f29);color:white;font:800 13px Manrope,sans-serif;letter-spacing:.2px;cursor:pointer;box-shadow:0 10px 24px rgba(199,15,41,.18);transition:transform .16s,filter .16s,box-shadow .16s}
+button:hover{transform:translateY(-1px);filter:brightness(1.07);box-shadow:0 14px 30px rgba(199,15,41,.24)}
+button:active{transform:translateY(1px) scale(.995)}
+button.g{background:rgba(255,255,255,.045);border-color:var(--line);box-shadow:none}
+button.gold{background:linear-gradient(135deg,#f0cc82,#bd9450);color:#17130d;box-shadow:0 12px 28px rgba(189,148,80,.16)}
+button:disabled{opacity:.38;box-shadow:none;filter:saturate(.4)}
+.big{font-family:"Playfair Display",serif;font-size:27px;text-align:center;font-weight:800;color:var(--gold);word-break:break-word;line-height:1.15}
+.code{letter-spacing:5px;font-family:"DM Mono",monospace}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0}
+.row button,.row input{width:auto;padding:8px 11px;margin:0}.row input{width:90px}
+.imp{color:var(--red2)}.mut{color:var(--mut);font-size:12px;font-weight:700;letter-spacing:.2px}
+.tm{font-family:"DM Mono",monospace;font-size:38px;font-weight:500;text-align:center;color:var(--cream);margin:4px 0}
+.badge{display:inline-block;padding:5px 9px;border-radius:99px;font:800 10px "DM Mono",monospace;letter-spacing:.8px;text-transform:uppercase;background:rgba(221,185,108,.1);color:var(--gold);border:1px solid rgba(221,185,108,.22)}
+.pbox{background:linear-gradient(135deg,rgba(221,185,108,.09),rgba(227,27,50,.07));border:1px solid rgba(221,185,108,.22);border-radius:16px;padding:13px 14px;margin:10px 0;text-align:center}
+.ptxt{font-size:14px;font-weight:800;color:var(--cream);margin-top:6px}
+.stub{position:relative;width:100%;min-height:230px;background:#121216;color:var(--cream);border:1px solid rgba(221,185,108,.55);border-radius:18px;overflow:hidden;user-select:none;-webkit-user-select:none;box-shadow:0 24px 70px rgba(0,0,0,.58);margin:12px 0;cursor:pointer}
+.stub:after{content:"";position:absolute;inset:8px;border:1px solid rgba(221,185,108,.12);border-radius:12px;pointer-events:none}
+.t-in{padding:28px 22px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:230px;background:radial-gradient(circle at 50% 10%,rgba(221,185,108,.12),transparent 58%),linear-gradient(145deg,#17171b,#101014)}
+.t-ser{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:2px;color:#a69b81;margin-bottom:9px}
+.t-div{width:72%;border-top:1px solid rgba(221,185,108,.18);margin:14px 0 8px}
+.shut{position:absolute;inset:0;background:linear-gradient(145deg,#222229,#15151a);border-bottom:3px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;padding:20px;text-align:center;transition:transform .38s cubic-bezier(.16,1,.3,1)}
+.stub.peek .shut{transform:translateY(-92%)}
+.clap{width:100%;height:18px;position:absolute;top:0;left:0;background:repeating-linear-gradient(-45deg,var(--gold),var(--gold) 12px,#171719 12px,#171719 24px);border-bottom:2px solid #080808}
+.pill{margin-top:12px;padding:8px 16px;border-radius:99px;background:rgba(221,185,108,.09);border:1px solid rgba(221,185,108,.38);color:var(--gold);font:800 10px "DM Mono",monospace;letter-spacing:.8px;text-transform:uppercase}
+.queue-box{background:#0c0c0f;border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:8px 0;text-align:left}
+.q-item{padding:7px 2px;font-size:13px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.04)}
+.q-item:last-child{border:0}
+.hero{position:relative;overflow:hidden;text-align:center;padding:32px 20px 24px;border:1px solid rgba(255,255,255,.08);border-radius:20px;background:linear-gradient(160deg,rgba(35,27,31,.9),rgba(12,12,15,.96));margin-bottom:12px}
+.hero:before{content:"";position:absolute;width:260px;height:260px;border:1px solid rgba(227,27,50,.16);border-radius:50%;left:50%;top:-170px;transform:translateX(-50%);box-shadow:0 0 80px rgba(227,27,50,.08)}
+.hero-kicker{color:var(--gold);font:500 10px "DM Mono",monospace;letter-spacing:2px;text-transform:uppercase}
+.hero h2{font:800 38px/1.05 "Playfair Display",serif;margin:14px 0 8px}
+.hero p{max-width:430px;margin:0 auto;color:var(--mut);font-size:13px}
+.join-row{display:flex;gap:8px}.join-row input{margin:0}.join-row button{width:130px;margin:0}
+.cast-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.cast-item{border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:12px;padding:10px 11px;display:flex;justify-content:space-between;gap:6px}
+.cast-item .pts{color:var(--gold);font-family:"DM Mono",monospace;font-size:11px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.settings-grid>*{margin:0}
+.phase-strip{display:flex;justify-content:center;gap:7px;margin:0 0 10px}.phase-dot{width:6px;height:6px;border-radius:50%;background:#35353b}.phase-dot.active{background:var(--red2);box-shadow:0 0 12px var(--red)}
+@media(min-width:760px){body{padding-top:34px}#app{max-width:760px}.cast-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.stub{min-height:260px}.t-in{min-height:260px}.hero h2{font-size:48px}}
+@media(max-width:520px){body{padding:18px 12px 40px}.hdr{justify-content:flex-start;margin-bottom:18px}h1{font-size:23px}.hero h2{font-size:35px}.settings-grid{grid-template-columns:1fr}.join-row{flex-direction:column}.join-row button{width:100%}.cast-grid{grid-template-columns:1fr 1fr}.row{gap:6px}}
+</style></head><body>
+<div class="hdr"><h1>MOVIE <span>IMPOSTER</span></h1></div>
+<div id="app"><div class="c mut" style="text-align:center">Loading screening room…</div></div>
+<script>
+const PROMPTS=[
+  ["PROP DEPT","Name one physical object, vehicle, or food item from the movie."],
+  ["INTERVAL BLOCK","Describe the midpoint twist or interval high point in 4 words or fewer."],
+  ["BGM & VIBE","Describe the soundtrack energy, lighting mood, or color palette."],
+  ["1-STAR REVIEW","Give a sarcastic clue as if you walked out of the theater angry."],
+  ["SCENE SETTING","Reference a city, campus, or backdrop where a key scene happens."],
+  ["SUPPORTING CAST","Describe a memorable side character, villain trait, or comic relief."],
+  ["CLIMAX MOOD","Describe the tension of the final 10 minutes without spoiling the ending."]
+];
+const DECKS={
+  kollywood:{name:"🔥 Kollywood Mass & Cult Reels",movies:[
+    {t:"Ghilli",l:"Tamil",y:2004,d:"easy",hint:"2000s Action Masala with a Sports Sub-Plot",decoys:["Pokkiri","Thirupaachi","Mersal"],pool:["Ghilli","Pokkiri","Thirupaachi","Thuppakki","Sivakasi"]},
+    {t:"Vikram",l:"Tamil",y:2022,d:"easy",hint:"High-Octane Action Thriller with Masked Operatives",decoys:["Kaithi","Leo","Jailer"],pool:["Vikram","Kaithi","Leo","Jailer","Master"]},
+    {t:"Mankatha",l:"Tamil",y:2011,d:"medium",hint:"High-Stakes Heist & Betrayal Thriller",decoys:["Billa","Thunivu","Arrambam"],pool:["Mankatha","Billa","Thunivu","Arrambam","Ayan"]},
+    {t:"Thani Oruvan",l:"Tamil",y:2015,d:"medium",hint:"Cat-and-Mouse Mind Game Between Officer and Mastermind",decoys:["Vikram Vedha","Vettaiyaadu Vilaiyaadu","Thuppakki"],pool:["Thani Oruvan","Vikram Vedha","Vettaiyaadu Vilaiyaadu","Thuppakki","Ratsasan"]},
+    {t:"Vada Chennai",l:"Tamil",y:2018,d:"hard",hint:"Multi-Decade Gangster Drama Anchored Around a Local Sport",decoys:["Pudhupettai","Aadukalam","Sarpatta Parambarai"],pool:["Vada Chennai","Pudhupettai","Aadukalam","Sarpatta Parambarai","Asuran"]},
+    {t:"Soodhu Kavvum",l:"Tamil",y:2013,d:"hard",hint:"Dark Comedy Kidnapping Caper Gone Wrong",decoys:["Jigarthanda","Doctor","Kolamaavu Kokila"],pool:["Soodhu Kavvum","Jigarthanda","Doctor","Kolamaavu Kokila","Super Deluxe"]},
+    {t:"Ayan",l:"Tamil",y:2009,d:"easy",hint:"Fast-Paced Smuggling & Undercover Action Entertainer",decoys:["Ko","Ghajini","Thuppakki"],pool:["Ayan","Ko","Ghajini","Thuppakki","Singam"]},
+    {t:"Maharaja",l:"Tamil",y:2024,d:"easy",hint:"Non-Linear Revenge Drama Over a Missing Household Item",decoys:["Ratsasan","Papanasam","Vikram Vedha"],pool:["Maharaja","Ratsasan","Papanasam","Vikram Vedha","Kaithi"]}
+  ]},
+  nostalgia:{name:"✨ Heartwarmers, Rom-Coms & Nostalgia",movies:[
+    {t:"Hridayam",l:"Malayalam",y:2022,d:"medium",hint:"Coming-of-Age Journey from Engineering College to Adulthood",decoys:["Premam","Bangalore Days","96"],pool:["Hridayam","Premam","Bangalore Days","96","Vaaranam Aayiram"]},
+    {t:"Hi Nanna",l:"Telugu",y:2023,d:"medium",hint:"Emotional Parent-Child Bond with a Coastal Flashback Romance",decoys:["Sita Ramam","Jersey","Thiruchitrambalam"],pool:["Hi Nanna","Sita Ramam","Jersey","Thiruchitrambalam","Charlie 777"]},
+    {t:"Oh Manapenne",l:"Tamil",y:2021,d:"medium",hint:"Feel-Good Matchmaking Turnaround with Creative Dreams",decoys:["Raja Rani","Love Today","Thiruchitrambalam"],pool:["Oh Manapenne","Raja Rani","Love Today","Thiruchitrambalam","Minnale"]},
+    {t:"Nitham Oru Vaanam",l:"Tamil",y:2022,d:"hard",hint:"Healing Travelogue Connecting Multiple Unfinished Stories",decoys:["Anbe Sivam","Charlie 777","96"],pool:["Nitham Oru Vaanam","Anbe Sivam","Charlie 777","96","Bangalore Days"]},
+    {t:"Vaaranam Aayiram",l:"Tamil",y:2008,d:"easy",hint:"Father-Son Tribute Spanning Romance and Redemption",decoys:["Vinnaithaandi Varuvaayaa","Autograph","Minnale"],pool:["Vaaranam Aayiram","Vinnaithaandi Varuvaayaa","Autograph","Minnale","Alaipayuthey"]},
+    {t:"96",l:"Tamil",y:2018,d:"medium",hint:"One-Night High School Reunion Steeped in Nostalgia",decoys:["Premam","Vinnaithaandi Varuvaayaa","Autograph"],pool:["96","Premam","Vinnaithaandi Varuvaayaa","Autograph","Mouna Ragam"]},
+    {t:"3 Idiots",l:"Hindi",y:2009,d:"easy",hint:"Campus Friendship Challenging Academic Pressure",decoys:["Nanban","Zindagi Na Milegi Dobara","Munna Bhai M.B.B.S."],pool:["3 Idiots","Nanban","Zindagi Na Milegi Dobara","Munna Bhai M.B.B.S.","Dangal"]}
+  ]},
+  thrillers:{name:"🌀 Mind-Benders & Cult Thrillers",movies:[
+    {t:"Inception",l:"English",y:2010,d:"easy",hint:"Layered Sci-Fi Heist Inside Shared Subconscious Worlds",decoys:["Interstellar","Shutter Island","Tenet"],pool:["Inception","Interstellar","Shutter Island","Tenet","The Matrix"]},
+    {t:"The Prestige",l:"English",y:2006,d:"medium",hint:"Obsessive Rivalry Between Two Stage Illusionists",decoys:["Shutter Island","Memento","Fight Club"],pool:["The Prestige","Shutter Island","Memento","Fight Club","Knives Out"]},
+    {t:"Andhadhun",l:"Hindi",y:2018,d:"medium",hint:"Musician Pretending Not to See Witnesses a Crime",decoys:["Drishyam","Ratsasan","Soodhu Kavvum"],pool:["Andhadhun","Drishyam","Ratsasan","Soodhu Kavvum","Knives Out"]},
+    {t:"Drishyam",l:"Malayalam",y:2013,d:"easy",hint:"Cable Operator Uses Cinema Tropes to Build an Alibi",decoys:["Papanasam","Andhadhun","Ratsasan"],pool:["Drishyam","Papanasam","Andhadhun","Ratsasan","Thegidi"]},
+    {t:"Parasite",l:"Korean",y:2019,d:"easy",hint:"Class-Divide Con Job Inside a Luxury Architect House",decoys:["Knives Out","Oldboy","Memories of Murder"],pool:["Parasite","Knives Out","Oldboy","Memories of Murder","Train to Busan"]}
+  ]}
+};
+
+const LS=(k,v)=>{try{if(v===undefined)return localStorage[k];localStorage[k]=v}catch(e){}};
+let uid=LS('uid')||Math.random().toString(36).slice(2,10);LS('uid',uid);
+let code,room,MOV=[],peek=false,lastPhase,lastTurn;
+let cfg={DK:'standard',L:'all',P:'0-3000',D:'all',I:'auto',HM:'spoken',T:120,W:0,C:1,K:1,PR:1,Y1:'',Y2:'',X:''};
+const app=document.getElementById('app'),$=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+fetch('movies.json').then(r=>r.json()).then(j=>MOV=j.movies.map(a=>({t:a[0],l:a[1],y:a[2],d:a[3]}))).catch(()=>{});
+function localGet(path){
+  let value=room;
+  for(const key of path.split('/').filter(Boolean)){
+    if(value==null)return undefined;
+    value=value[key];
+  }
+  return value;
+}
+function localSet(path,value,remove=false){
+  if(!room)return;
+  const keys=path.split('/').filter(Boolean);
+  if(!keys.length){if(remove)return;room=value;return render();}
+  let target=room;
+  for(let i=0;i<keys.length-1;i++){
+    if(target[keys[i]]==null||typeof target[keys[i]]!='object')target[keys[i]]={};
+    target=target[keys[i]];
+  }
+  if(remove)delete target[keys[keys.length-1]];
+  else target[keys[keys.length-1]]=value;
+  render();
+}
+const ref=(path='')=>({
+  set:value=>{localSet(path,value);return Promise.resolve()},
+  update:value=>{
+    for(const [key,nested] of Object.entries(value)){
+      localSet(path?path+'/'+key:key,nested);
+    }
+    render();
+    return Promise.resolve();
+  },
+  remove:()=>{localSet(path,undefined,true);return Promise.resolve()},
+  transaction:fn=>{
+    const current=localGet(path);
+    localSet(path,fn(current));
+    return Promise.resolve({committed:true});
+  },
+  on:()=>{},
+  off:()=>{},
+  get:()=>Promise.resolve({exists:()=>false,val:()=>null})
+});
+const P=()=>room.players||{},isHost=()=>room.host==uid,isImp=()=>(room.imp||[]).includes(uid),SC=i=>(room.scores||{})[i]||0;
+const S=(k,o)=>`<select onchange="cfg.${k}=this.value;if('${k}'==='DK')render()">${o.map(([v,l])=>`<option value="${v}" ${cfg[k]==v?'selected':''}>${l}</option>`).join('')}</select>`;
+function beep(f=660){try{const a=new(window.AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=f;g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.14);o.start();o.stop(a.currentTime+.14)}catch(e){}try{navigator.vibrate(20)}catch(e){}}
+
+setInterval(()=>{const e=$('#tm');if(e&&room&&room.tEnd)e.textContent=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000))+'s'},300);
+const pre=(new URLSearchParams(location.search)).get('r')||'';
+
+function home(){
+  app.innerHTML=`<section class="hero">
+    <div class="hero-kicker">One phone. One secret role. Fully offline.</div>
+    <h2>The movie is known.<br>The imposter is not.</h2>
+    <p>Pass the phone, read the clues, interrogate your friends, and expose the imposter.</p>
+  </section>
+  <div class="c">
+    <div class="mut" style="margin:0 0 4px">PLAYER NAMES</div>
+    <textarea id="n" rows="4" maxlength="280" placeholder="One name per line&#10;Alex&#10;Sam&#10;Taylor&#10;Jordan">${esc(LS('ln')||'')}</textarea>
+    <button onclick="create()">START OFFLINE SCREENING</button>
+  </div>`;
+}
+function leaveRoom(){if(code)ref().off();LS('rc','');code=null;room=null;home()}
+function name(){const n=$('#n').value.trim();if(!n)alert('Enter at least 3 player names');return n}
+function create(){
+  const text=name();if(!text)return;
+  const names=[...new Set(text.split(/[\n,]+/).map(n=>n.trim()).filter(Boolean))];
+  if(names.length<3)return alert('You need at least 3 players');
+  LS('ln',names.join('\n'));
+  enter('OFFLINE',names);
+}
+function enter(c,names){
+  code=c;
+  const players={};
+  names.forEach((name,index)=>players['p'+(index+1)]=name);
+  uid='p1';
+  LS('uid',uid);
+  room={host:uid,phase:'lobby',players,scores:{}};
+  render();
+}
+
+function roleCard(){
+  const r=room,s=r.s||{};let b='';
+  if(isImp()&&r.decoy)b=`<div class="t-ser">ADMIT ONE • SCREEN 01</div><div class="mut">Your Assigned Movie</div><div class="big">${esc(r.decoy)}</div>${s.clue&&r.my?`<div class="t-div"></div><div class="mut">${esc(r.ml)} • ${r.my}</div>`:''}`;
+  else if(isImp())b=`<div class="t-ser">UNLISTED CAST • BLUFF</div><div class="big imp">🎭 IMPOSTER</div><div class="mut">Blend in with your clue!</div>${s.clue?`<div class="t-div"></div><div class="badge">${esc(r.mHint||(r.ml+', '+Math.floor((r.my||2010)/10)*10+'s'))}</div>`:''}`;
+  else b=`<div class="t-ser">ADMIT ONE • SCREEN 01</div><div class="mut">Your Assigned Movie</div><div class="big">${esc(r.movie)}</div>${s.clue?`<div class="t-div"></div><div class="mut">${esc(r.ml)}${r.my?' • '+r.my:''}</div>`:''}`;
+  return `<div class="stub ${peek?'peek':''}" id="stub" oncontextmenu="return false">
+    <div class="shut"><div class="clap"></div><div style="font-size:22px;margin-top:6px">🎟️</div><div style="font-weight:800;letter-spacing:1.4px">CONFIDENTIAL TICKET</div><div class="mut">Shield screen from others</div><div class="pill">HOLD OR TAP TO PEEK</div></div>
+    <div class="t-in">${b}</div>
+  </div>`;
+}
+function bindStub(){
+  const el=$('#stub');if(!el)return;let t0=0;
+  el.onpointerdown=()=>{t0=Date.now();el.classList.add('peek');try{navigator.vibrate(12)}catch(e){}};
+  const end=()=>{if(Date.now()-t0>220){el.classList.remove('peek');peek=false}else{peek=!peek;el.classList.toggle('peek',peek)}};
+  el.onpointerup=end;el.onpointercancel=()=>{el.classList.remove('peek');peek=false};
+}
+function promptBox(){
+  if(!room.pTag||!room.pTxt)return '';
+  return `<div class="pbox"><span class="badge">🎬 DIRECTOR'S CUT: ${esc(room.pTag)}</span><div class="ptxt">${esc(room.pTxt)}</div></div>`;
+}
+function hintBox(){
+  const h=room.hints||{},ids=Object.keys(P());
+  if(ids.every(i=>h[i]))return `<div class="c"><b>Clue Reel</b>${ids.map(i=>`<div class="row"><span>${esc(P()[i])}</span><b>${esc(h[i])}</b></div>`).join('')}</div>`;
+  return `<div class="c">${h[uid]?'<div class="mut" style="text-align:center">Clue locked in ✔</div>':`<input id="h" placeholder="Type your clue" maxlength="40"><button onclick="sendHint()">Lock In Clue</button>`}<div class="mut" style="text-align:center">${Object.keys(h).length}/${ids.length} submitted</div></div>`;
+}
+
+function render(){
+  const ph=room.phase,pl=P(),ids=Object.keys(pl),s=room.s||{};
+  const phases=['lobby','play','talk','vote','result'];
+  const active=phases.indexOf(ph);
+  let h=`<div class="phase-strip">${phases.map((p,i)=>`<span class="phase-dot ${i<=active?'active':''}" title="${p}"></span>`).join('')}</div>
+  <div class="c"><div class="row"><div><div class="mut">OFFLINE MODE</div><div class="big code" style="font-size:21px;text-align:left">PASS & PLAY</div></div>
+  <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:9px 10px" onclick="leaveRoom()">EXIT</button></div></div></div>`;
+  
+  if(ph=='lobby'){
+    h+=`<div class="c"><div class="row"><b>THE CAST</b><span class="badge">${ids.length} players</span></div><div class="cast-grid">${ids.map(i=>`<div class="cast-item"><span>${esc(pl[i])}${i==room.host?' <span class="mut">HOST</span>':''}</span><span class="pts">${SC(i)} pts</span>${isHost()&&i!=uid?`<button class="g" style="width:auto;padding:4px 7px;margin:0" onclick="kick('${i}')">×</button>`:''}</div>`).join('')}</div></div>`;
+    if(isHost()){
+      const dkOpts=[['standard','📚 Full 300+ Movie Database'],...Object.entries(DECKS).map(([k,v])=>[k,v.name])];
+      h+=`<div class="c"><b>Director's Cut Settings</b>${S('DK',dkOpts)}`;
+      if(cfg.DK==='standard'){
+        h+=`${S('L',[['all','All languages'],...['English','Tamil','Hindi','Telugu','Malayalam','Kannada','Korean','Japanese'].map(l=>[l,l])])}
+        ${S('P',[['0-3000','Any year'],['0-1989','Before 1990'],['1990-1999','1990s'],['2000-2009','2000s'],['2010-2019','2010s'],['2020-3000','2020s']])}
+        <div class="row"><span class="mut">Custom years</span><input type="number" placeholder="from" value="${cfg.Y1}" onchange="cfg.Y1=this.value"><input type="number" placeholder="to" value="${cfg.Y2}" onchange="cfg.Y2=this.value"></div>
+        ${S('D',[['all','Any difficulty'],['easy','Easy'],['medium','Medium'],['hard','Hard']])}`;
+      }
+      h+=`${S('C',[[1,'Undercover Mode: Imposter gets twin decoy movie'],[0,'Classic Mode: Imposter sees IMPOSTER']])}
+      ${S('PR',[[1,"Director's Cut Prompts: ON"],[0,"Director's Cut Prompts: OFF"]])}
+      ${S('I',[['auto','Imposters: Auto'],['1','1 Imposter'],['2','2 Imposters']])}
+      ${S('HM',[['spoken','Clues: Spoken in turn (Multiple Hints)'],['typed','Clues: Typed & revealed together']])}
+      ${S('T',[[60,'Discussion 1 min'],[120,'Discussion 2 min'],[180,'Discussion 3 min'],[300,'Discussion 5 min']])}
+      ${S('W',[[0,'Endless rounds'],[5,'First to 5 pts'],[10,'First to 10 pts']])}
+      ${S('K',[[1,'Show era/vibe clue'],[0,'No clues']])}
+      <textarea rows="2" placeholder="Custom movie pack (optional): one per line" oninput="cfg.X=this.value">${esc(cfg.X)}</textarea>
+      <button onclick="start()" ${ids.length<3?'disabled':''}>${ids.length<3?'Need 3+ Players':'🎬 Action! Start Round'}</button></div>`;
+    }else h+=`<div class="c mut" style="text-align:center">Waiting for host to start the reel…</div>`;
+  }else if(ph=='play'){
+    h+=roleCard()+promptBox();
+    if(s.typed)h+=hintBox()+(isHost()?`<button onclick="talk()">Start Discussion</button>`:'');
+    else{
+      const cur=room.order[room.turn];
+      const queueList = room.order.map((id, idx) => {
+        const isDone = idx < room.turn;
+        const isCurrent = idx === room.turn;
+        let mark = isDone ? '✓ Done' : (isCurrent ? '👉 Speaking Now' : '⏳ Waiting');
+        let style = isCurrent ? 'color:var(--gold2);font-weight:700;' : (isDone ? 'color:var(--mut);' : '');
+        return `<div class="q-item" style="${style}"><span>${idx+1}. ${esc(pl[id]||'?')} ${id==uid?'(You)':''}</span><span class="badge" style="font-size:10px">${mark}</span></div>`;
+      }).join('');
+
+      h+=`<div class="c" style="text-align:center">
+        <div class="mut">🗣️ HINT ROUND • Turn ${room.turn+1} of ${room.order.length}</div>
+        <div class="big" style="margin:4px 0">${esc(pl[cur]||'?')}${cur==uid?' (YOUR TURN TO SAY A HINT!)':''}</div>
+        <div class="queue-box"><div class="mut" style="margin-bottom:6px">Speaking Queue Order:</div>${queueList}</div>
+        <div class="mut" style="margin:8px 0">Say your hint out loud, then tap done when finished.</div>
+        ${cur==uid||isHost()?`<button class="gold" onclick="next()">Done With My Hint ✅</button>`:''}
+      </div>`;
+    }
+  }else if(ph=='talk'){
+    h+=roleCard()+promptBox()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Interrogation Room • Open Discussion!</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">🗳️ Start Voting</button>`:'');
+  }else if(ph=='vote'){
+    const v=room.votes||{};
+    h+=`<div class="c">
+      <b>🎯 Choose who you think is the Imposter:</b>
+      <span class="mut" style="display:block;margin-bottom:8px">${Object.keys(v).length}/${ids.length} voted</span>
+      ${ids.filter(i=>i!=uid).map(i=>`<button class="${v[uid]==i?'':'g'}" onclick="beep(520);ref('votes/${uid}').set('${i}')">${esc(pl[i])}${v[uid]==i?' 🎯 (Selected)':''}</button>`).join('')}
+    </div>`+(isHost()?`<button class="gold" onclick="reveal()">Reveal Verdict & Scores</button>`:'');
+  }else if(ph=='result'){
+    const imp=room.imp||[],v=room.votes||{},cnt={};Object.values(v).forEach(x=>cnt[x]=(cnt[x]||0)+1);
+    const sorted=[...ids].sort((a,b)=>SC(b)-SC(a)),win=s.win&&SC(sorted[0])>=s.win;
+    
+    h+=`<div class="c" style="text-align:center">
+      <div class="mut">The Imposter${imp.length>1?'s':''}</div>
+      <div class="big imp">${imp.map(i=>esc(pl[i]||'?')).join(' & ')}</div>
+      <div style="margin:8px 0">Movie: <b style="color:var(--gold2)">${esc(room.movie)}</b>${room.decoy?`<br><span class="mut">(Decoy shown: ${esc(room.decoy)})</span>`:''}</div>
+      <div class="badge">${room.caught?'✅ IMPOSTER CAUGHT!':'😈 IMPOSTER ESCAPED!'}</div>
+      ${room.guess?`<div style="margin-top:8px">Heist Guess: <b>${esc(room.guess)}</b></div>`:''}
+    </div>`;
+
+    if(room.caught&&isImp()&&!room.guess){
+      const lp=room.pool||[];
+      h+=`<div class="c"><b>⚡ Box Office Heist: Guess the movie (+1 pt steal)</b>${lp.length?lp.map(t=>`<button class="g" data-t="${esc(t)}" onclick="guessTitle(this.dataset.t)">${esc(t)}</button>`).join(''):`<input id="g" placeholder="Movie name"><button onclick="guess()">Submit Guess</button>`}</div>`;
+    }
+
+    if(win)h+=`<div class="c big">🏆 ${esc(pl[sorted[0]])} Wins Match!</div>`;
+    h+=`<div class="c"><b>Standings</b>${sorted.map(i=>`<div class="row"><span>${esc(pl[i])} <span class="mut">(${cnt[i]||0} votes)</span></span><b>${SC(i)} pts</b></div>`).join('')}</div>`+(isHost()?`<button onclick="${win?"ref('scores').remove();":''}ref('phase').set('lobby')">${win?'New Match':'Next Round 🎬'}</button>`:'');
+  }
+  app.innerHTML=h;bindStub();
+}
+function kick(i){ref('players/'+i).remove()}
+function pickDecoy(m,pool){
+  if(m.decoys&&m.decoys.length)return m.decoys[Math.random()*m.decoys.length|0];
+  const c=(MOV.length?MOV:pool).filter(x=>x.l==m.l&&x.t!=m.t);if(!c.length)return null;
+  const r=c.map(x=>({t:x.t,s:(x.d==m.d?0:15)+Math.abs((x.y||2015)-(m.y||2015))})).sort((a,b)=>a.s-b.s).slice(0,6);
+  return r[Math.random()*r.length|0].t;
+}
+function makePool(m,decoy,pool){
+  if(m.pool&&m.pool.length)return [...m.pool].sort(()=>Math.random()-.5);
+  const s=new Set([m.t]);if(decoy)s.add(decoy);
+  const c=(MOV.length?MOV:pool).filter(x=>x.l==m.l&&!s.has(x.t)).sort((a,b)=>Math.abs((a.y||2015)-(m.y||2015))-Math.abs((b.y||2015)-(m.y||2015)));
+  for(const x of c){if(s.size>=5)break;s.add(x.t)}
+  return Array.from(s).sort(()=>Math.random()-.5);
+}
+function start(){
+  let[a,b]=cfg.P.split('-').map(Number);if(cfg.Y1)a=+cfg.Y1;if(cfg.Y2)b=+cfg.Y2;
+  const custom=cfg.X.split('\n').map(x=>x.trim()).filter(Boolean);
+  let pool=custom.length?custom.map(t=>({t,l:'Custom',y:'',d:''})):(cfg.DK!=='standard'&&DECKS[cfg.DK]?DECKS[cfg.DK].movies:MOV.filter(m=>(cfg.L=='all'||m.l==cfg.L)&&m.y>=a&&m.y<=b&&(cfg.D=='all'||m.d==cfg.D)));
+  if(!pool.length)return alert('No movies match. Loosen the filters.');
+  const ids=Object.keys(P()).sort(()=>Math.random()-.5),n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
+  const m=pool[Math.random()*pool.length|0],decoy=+cfg.C?pickDecoy(m,pool):null,heist=makePool(m,decoy,pool);
+  const pr=+cfg.PR?PROMPTS[Math.random()*PROMPTS.length|0]:[null,null];
+  ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order:[...ids].sort(()=>Math.random()-.5),turn:0,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
+}
+function next(){
+  const t=room.turn+1;
+  if(t>=room.order.length)talk();
+  else ref().update({turn:t});
+}
+function talk(){ref().update({phase:'talk',tEnd:Date.now()+(room.s.talk||120)*1000})}
+function sendHint(){const v=$('#h').value.trim();if(v)ref('hints/'+uid).set(v)}
+function reveal(){
+  const v=room.votes||{},ids=Object.keys(P()),impList=room.imp||[];
+  let correctVotes=0, totalVotes=0;
+
+  // Calculate scores based on user rules
+  ids.forEach(i=>{
+    const votedFor=v[i];
+    const isImp=impList.includes(i);
+    if(votedFor && impList.includes(votedFor)){
+      if(!isImp) correctVotes++;
+    }
+    totalVotes++;
+  });
+
+  const caught=correctVotes >= Math.ceil((ids.length - impList.length)/2);
+  const everyoneChoseCorrectly = (correctVotes === (ids.length - impList.length));
+
+  ids.forEach(i=>{
+    const isImp=impList.includes(i);
+    const votedFor=v[i];
+    let delta=0;
+
+    if(caught){
+      // Imposter caught
+      if(isImp){
+        delta=0;
+      } else {
+        // Crew member
+        if(votedFor && impList.includes(votedFor)) delta = 1; // +1 if correct
+        else delta = -0.5; // -0.5 if wrong
+      }
+    } else {
+      // Imposter escaped
+      if(isImp){
+        if(everyoneChoseCorrectly) delta = -0.5; // -0.5 if everyone chose imposter
+        else delta = 1; // +1 for escaping
+      } else {
+        if(votedFor && impList.includes(votedFor)) delta = 1; // +1 if they got it right anyway
+        else delta = -0.5; // -0.5 if wrong
+      }
+    }
+
+    if(delta !== 0){
+      ref('scores/'+i).transaction(s => Math.round(((s||0) + delta)*10)/10);
+    }
+  });
+
+  ref().update({phase:'result',caught});
+}
+function guessTitle(g){if(!g||room.guess)return;const ok=g.toLowerCase()==room.movie.toLowerCase();if(ok)ref('scores/'+uid).transaction(s=>Math.round(((s||0)+1)*10)/10);ref('guess').set(g+(ok?' ✔ (+1 Steal!)':' ✘'))}
+function guess(){const g=$('#g').value.trim();if(g)guessTitle(g)}
+home();
+</script></body></html>

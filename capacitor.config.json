@@ -1,0 +1,8 @@
+{
+  "appId": "com.srsurajithpranav.movieimposter",
+  "appName": "Movie Imposter",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false
+  }
+}
