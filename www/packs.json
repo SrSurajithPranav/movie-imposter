@@ -1,0 +1,232 @@
+{
+  "prompts": [
+    {
+      "tag": "PROP DEPT",
+      "text": "Name a single physical object, vehicle, or food item from the movie."
+    },
+    {
+      "tag": "INTERVAL BLOCK",
+      "text": "Describe the midpoint twist or interval high point in 4 words or fewer."
+    },
+    {
+      "tag": "BGM & VIBE",
+      "text": "Describe the soundtrack energy, lighting mood, or color palette."
+    },
+    {
+      "tag": "1-STAR REVIEW",
+      "text": "Give a sarcastic clue as if you hated the plot."
+    },
+    {
+      "tag": "SETTING THE SCENE",
+      "text": "Reference a city, building, or backdrop where a major scene happens."
+    },
+    {
+      "tag": "SIDE CHARACTER",
+      "text": "Describe a memorable supporting character, villain trait, or comic relief."
+    },
+    {
+      "tag": "CLIMAX ENERGY",
+      "text": "Describe the mood of the final 10 minutes without spoiling the ending."
+    }
+  ],
+  "decks": [
+    {
+      "id": "kollywood_cult",
+      "name": "🔥 Kollywood Mass & Cult Reels",
+      "movies": [
+        {
+          "t": "Ghilli",
+          "l": "Tamil",
+          "y": 2004,
+          "d": "easy",
+          "hint": "2000s Action Masala with a Sports Sub-Plot",
+          "decoys": ["Pokkiri", "Thirupaachi", "Mersal"],
+          "pool": ["Ghilli", "Pokkiri", "Thirupaachi", "Thuppakki", "Sivakasi"]
+        },
+        {
+          "t": "Vikram",
+          "l": "Tamil",
+          "y": 2022,
+          "d": "easy",
+          "hint": "High-Octane Action Thriller with Masked Operatives",
+          "decoys": ["Kaithi", "Leo", "Jailer"],
+          "pool": ["Vikram", "Kaithi", "Leo", "Jailer", "Master"]
+        },
+        {
+          "t": "Mankatha",
+          "l": "Tamil",
+          "y": 2011,
+          "d": "medium",
+          "hint": "High-Stakes Heist & Betrayal Thriller",
+          "decoys": ["Billa", "Thunivu", "Arrambam"],
+          "pool": ["Mankatha", "Billa", "Thunivu", "Arrambam", "Ayan"]
+        },
+        {
+          "t": "Thani Oruvan",
+          "l": "Tamil",
+          "y": 2015,
+          "d": "medium",
+          "hint": "Cat-and-Mouse Mind Game Between Officer and Mastermind",
+          "decoys": ["Vikram Vedha", "Vettaiyaadu Vilaiyaadu", "Thuppakki"],
+          "pool": ["Thani Oruvan", "Vikram Vedha", "Vettaiyaadu Vilaiyaadu", "Thuppakki", "Ratsasan"]
+        },
+        {
+          "t": "Vada Chennai",
+          "l": "Tamil",
+          "y": 2018,
+          "d": "hard",
+          "hint": "Multi-Decade Gangster Drama Anchored Around a Local Sport",
+          "decoys": ["Pudhupettai", "Aadukalam", "Sarpatta Parambarai"],
+          "pool": ["Vada Chennai", "Pudhupettai", "Aadukalam", "Sarpatta Parambarai", "Asuran"]
+        },
+        {
+          "t": "Soodhu Kavvum",
+          "l": "Tamil",
+          "y": 2013,
+          "d": "hard",
+          "hint": "Dark Comedy Crime Caper Gone Wrong",
+          "decoys": ["Jigarthanda", "Doctor", "Kolamaavu Kokila"],
+          "pool": ["Soodhu Kavvum", "Jigarthanda", "Doctor", "Kolamaavu Kokila", "Super Deluxe"]
+        },
+        {
+          "t": "Ayan",
+          "l": "Tamil",
+          "y": 2009,
+          "d": "easy",
+          "hint": "Fast-Paced Smuggling & Undercover Action Entertainer",
+          "decoys": ["Ko", "Ghajini", "Thuppakki"],
+          "pool": ["Ayan", "Ko", "Ghajini", "Thuppakki", "Singam"]
+        },
+        {
+          "t": "Maharaja",
+          "l": "Tamil",
+          "y": 2024,
+          "d": "easy",
+          "hint": "Non-Linear Revenge Drama Over a Missing Household Item",
+          "decoys": ["Ratsasan", "Kurangu Bommai", "Papanasam"],
+          "pool": ["Maharaja", "Ratsasan", "Papanasam", "Vikram Vedha", "Por Thozhil"]
+        }
+      ]
+    },
+    {
+      "id": "feel_good_nostalgia",
+      "name": "✨ Heartwarmers, Rom-Coms & Nostalgia",
+      "movies": [
+        {
+          "t": "Hridayam",
+          "l": "Malayalam",
+          "y": 2022,
+          "d": "medium",
+          "hint": "Coming-of-Age Journey from Engineering College to Adulthood",
+          "decoys": ["Premam", "Bangalore Days", "96"],
+          "pool": ["Hridayam", "Premam", "Bangalore Days", "96", "Vaaranam Aayiram"]
+        },
+        {
+          "t": "Hi Nanna",
+          "l": "Telugu",
+          "y": 2023,
+          "d": "medium",
+          "hint": "Emotional Parent-Child Bond with a Coastal Flashback Romance",
+          "decoys": ["Sita Ramam", "Jersey", "Thiruchitrambalam"],
+          "pool": ["Hi Nanna", "Sita Ramam", "Jersey", "Thiruchitrambalam", "Charlie 777"]
+        },
+        {
+          "t": "Oh Manapenne",
+          "l": "Tamil",
+          "y": 2021,
+          "d": "medium",
+          "hint": "Feel-Good Matchmaking Turnaround with Culinary/Creative Dreams",
+          "decoys": ["Raja Rani", "Love Today", "Thiruchitrambalam"],
+          "pool": ["Oh Manapenne", "Raja Rani", "Love Today", "Thiruchitrambalam", "Kadhalum Kadandhu Pogum"]
+        },
+        {
+          "t": "Nitham Oru Vaanam",
+          "l": "Tamil",
+          "y": 2022,
+          "d": "hard",
+          "hint": "Healing Travelogue Connecting Multiple Unfinished Stories",
+          "decoys": ["Anbe Sivam", "Charlie 777", "96"],
+          "pool": ["Nitham Oru Vaanam", "Anbe Sivam", "Charlie 777", "96", "Bangalore Days"]
+        },
+        {
+          "t": "Vaaranam Aayiram",
+          "l": "Tamil",
+          "y": 2008,
+          "d": "easy",
+          "hint": "Father-Son Tribute Spanning Romance, Heartbreak, and Redemption",
+          "decoys": ["Vinnaithaandi Varuvaayaa", "Autograph", "Minnale"],
+          "pool": ["Vaaranam Aayiram", "Vinnaithaandi Varuvaayaa", "Autograph", "Minnale", "Alaipayuthey"]
+        },
+        {
+          "t": "96",
+          "l": "Tamil",
+          "y": 2018,
+          "d": "medium",
+          "hint": "One-Night High School Reunion Steeped in Unspoken Nostalgia",
+          "decoys": ["Premam", "Vinnaithaandi Varuvaayaa", "Autograph"],
+          "pool": ["96", "Premam", "Vinnaithaandi Varuvaayaa", "Autograph", "Mouna Ragam"]
+        },
+        {
+          "t": "3 Idiots",
+          "l": "Hindi",
+          "y": 2009,
+          "d": "easy",
+          "hint": "Campus Friendship Challenging Academic Pressure",
+          "decoys": ["Nanban", "Zindagi Na Milegi Dobara", "Munna Bhai M.B.B.S."],
+          "pool": ["3 Idiots", "Nanban", "Zindagi Na Milegi Dobara", "Munna Bhai M.B.B.S.", "Chhichhore"]
+        }
+      ]
+    },
+    {
+      "id": "mind_benders",
+      "name": "🌀 Mind-Benders & Cult Thrillers",
+      "movies": [
+        {
+          "t": "Inception",
+          "l": "English",
+          "y": 2010,
+          "d": "easy",
+          "hint": "Layered Sci-Fi Heist Inside Shared Subconscious Worlds",
+          "decoys": ["Interstellar", "Shutter Island", "Tenet"],
+          "pool": ["Inception", "Interstellar", "Shutter Island", "Tenet", "The Matrix"]
+        },
+        {
+          "t": "The Prestige",
+          "l": "English",
+          "y": 2006,
+          "d": "medium",
+          "hint": "Obsessive Rivalry Between Two Stage Illusionists",
+          "decoys": ["Shutter Island", "Memento", "Fight Club"],
+          "pool": ["The Prestige", "Shutter Island", "Memento", "Fight Club", "Knives Out"]
+        },
+        {
+          "t": "Andhadhun",
+          "l": "Hindi",
+          "y": 2018,
+          "d": "medium",
+          "hint": "Musician Pretending Not to See Witnesses a Crime",
+          "decoys": ["Drishyam", "Ratsasan", "Soodhu Kavvum"],
+          "pool": ["Andhadhun", "Drishyam", "Ratsasan", "Soodhu Kavvum", "Knives Out"]
+        },
+        {
+          "t": "Drishyam",
+          "l": "Malayalam",
+          "y": 2013,
+          "d": "easy",
+          "hint": "Cable Operator Uses Cinema Tropes to Build an Alibi",
+          "decoys": ["Papanasam", "Andhadhun", "Ratsasan"],
+          "pool": ["Drishyam", "Papanasam", "Andhadhun", "Ratsasan", "Thegidi"]
+        },
+        {
+          "t": "Parasite",
+          "l": "Korean",
+          "y": 2019,
+          "d": "easy",
+          "hint": "Class-Divide Con Job Inside a Luxury Architect's House",
+          "decoys": ["Knives Out", "Oldboy", "Memories of Murder"],
+          "pool": ["Parasite", "Knives Out", "Oldboy", "Memories of Murder", "Train to Busan"]
+        }
+      ]
+    }
+  ]
+}

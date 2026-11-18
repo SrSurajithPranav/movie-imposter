@@ -1,7 +1,4 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>Movie Imposter — Director's Cut</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#09090b;--panel:rgba(20,20,24,.86);--panel2:#111116;--line:rgba(255,255,255,.09);--red:#e31b32;--red2:#ff4058;--gold:#ddb96c;--cream:#f3efe6;--text:#f7f5ef;--mut:#99969f}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -60,18 +57,7 @@ button:disabled{opacity:.38;box-shadow:none;filter:saturate(.4)}
 </style></head><body>
 <div class="hdr"><h1>MOVIE <span>IMPOSTER</span></h1></div>
 <div id="app"><div class="c mut" style="text-align:center">Loading screening room…</div></div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-const CFG={
-  apiKey:"AIzaSyA3gGVcVJ5JuvVYsL43mlhzwZuAZoDFe7E",
-  authDomain:"movie-imposter-cf582.firebaseapp.com",
-  databaseURL:"https://movie-imposter-cf582-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:"movie-imposter-cf582",
-  storageBucket:"movie-imposter-cf582.firebasestorage.app",
-  messagingSenderId:"709530139734",
-  appId:"1:709530139734:web:d1b4790dfe4e404f494ff7"
-};
 const PROMPTS=[
   ["PROP DEPT","Name one physical object, vehicle, or food item from the movie."],
   ["INTERVAL BLOCK","Describe the midpoint twist or interval high point in 4 words or fewer."],
@@ -110,7 +96,6 @@ const DECKS={
   ]}
 };
 
-firebase.initializeApp(CFG);const db=firebase.database();
 const LS=(k,v)=>{try{if(v===undefined)return localStorage[k];localStorage[k]=v}catch(e){}};
 let uid=LS('uid')||Math.random().toString(36).slice(2,10);LS('uid',uid);
 let code,room,MOV=[],peek=false,lastPhase,lastTurn;
@@ -118,7 +103,46 @@ let cfg={DK:'standard',L:'all',P:'0-3000',D:'all',I:'auto',HM:'spoken',T:120,W:0
 const app=document.getElementById('app'),$=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 fetch('movies.json').then(r=>r.json()).then(j=>MOV=j.movies.map(a=>({t:a[0],l:a[1],y:a[2],d:a[3]}))).catch(()=>{});
-const ref=p=>db.ref('rooms/'+code+(p?'/'+p:''));
+function localGet(path){
+  let value=room;
+  for(const key of path.split('/').filter(Boolean)){
+    if(value==null)return undefined;
+    value=value[key];
+  }
+  return value;
+}
+function localSet(path,value,remove=false){
+  if(!room)return;
+  const keys=path.split('/').filter(Boolean);
+  if(!keys.length){if(remove)return;room=value;return render();}
+  let target=room;
+  for(let i=0;i<keys.length-1;i++){
+    if(target[keys[i]]==null||typeof target[keys[i]]!='object')target[keys[i]]={};
+    target=target[keys[i]];
+  }
+  if(remove)delete target[keys[keys.length-1]];
+  else target[keys[keys.length-1]]=value;
+  render();
+}
+const ref=(path='')=>({
+  set:value=>{localSet(path,value);return Promise.resolve()},
+  update:value=>{
+    for(const [key,nested] of Object.entries(value)){
+      localSet(path?path+'/'+key:key,nested);
+    }
+    render();
+    return Promise.resolve();
+  },
+  remove:()=>{localSet(path,undefined,true);return Promise.resolve()},
+  transaction:fn=>{
+    const current=localGet(path);
+    localSet(path,fn(current));
+    return Promise.resolve({committed:true});
+  },
+  on:()=>{},
+  off:()=>{},
+  get:()=>Promise.resolve({exists:()=>false,val:()=>null})
+});
 const P=()=>room.players||{},isHost=()=>room.host==uid,isImp=()=>(room.imp||[]).includes(uid),SC=i=>(room.scores||{})[i]||0;
 const S=(k,o)=>`<select onchange="cfg.${k}=this.value;if('${k}'==='DK')render()">${o.map(([v,l])=>`<option value="${v}" ${cfg[k]==v?'selected':''}>${l}</option>`).join('')}</select>`;
 function beep(f=660){try{const a=new(window.AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=f;g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.14);o.start();o.stop(a.currentTime+.14)}catch(e){}try{navigator.vibrate(20)}catch(e){}}
@@ -128,40 +152,34 @@ const pre=(new URLSearchParams(location.search)).get('r')||'';
 
 function home(){
   app.innerHTML=`<section class="hero">
-    <div class="hero-kicker">One room. One secret role. No mercy.</div>
+    <div class="hero-kicker">One phone. One secret role. Fully offline.</div>
     <h2>The movie is known.<br>The imposter is not.</h2>
-    <p>Read the clues, interrogate your friends, and expose the one person with the wrong reel.</p>
+    <p>Pass the phone, read the clues, interrogate your friends, and expose the imposter.</p>
   </section>
   <div class="c">
-    <div class="mut" style="margin:0 0 4px">PLAYER NAME</div>
-    <input id="n" placeholder="Enter your screen name" maxlength="14" value="${esc(LS('ln')||'')}">
-    <button onclick="create()">CREATE A SCREENING ROOM</button>
-  </div>
-  <div class="c">
-    <div class="mut" style="margin:0 0 4px">INVITE CODE</div>
-    <div class="join-row"><input id="c" placeholder="6-digit code" inputmode="numeric" maxlength="6" value="${esc(pre)}"><button class="g" onclick="joinRoom()">JOIN ROOM</button></div>
+    <div class="mut" style="margin:0 0 4px">PLAYER NAMES</div>
+    <textarea id="n" rows="4" maxlength="280" placeholder="One name per line&#10;Alex&#10;Sam&#10;Taylor&#10;Jordan">${esc(LS('ln')||'')}</textarea>
+    <button onclick="create()">START OFFLINE SCREENING</button>
   </div>`;
 }
 function leaveRoom(){if(code)ref().off();LS('rc','');code=null;room=null;home()}
-function name(){const n=$('#n').value.trim();if(!n)alert('Enter your name');return n}
-async function create(){const n=name();if(!n)return;const c=String(100000+Math.random()*900000|0);await db.ref('rooms/'+c).set({host:uid,phase:'lobby'});enter(c,n)}
-async function joinRoom(){const n=name();if(!n)return;const c=$('#c').value.trim();const s=await db.ref('rooms/'+c).get();
-  if(!s.exists())return alert('Room not found');const v=s.val(),pl=v.players||{};
-  const old=Object.keys(pl).find(i=>pl[i].toLowerCase()==n.toLowerCase());
-  if(old){uid=old;LS('uid',uid)}else if(v.phase!='lobby')return alert('Game already started. Rejoin with your exact old name.');
-  enter(c,n);
+function name(){const n=$('#n').value.trim();if(!n)alert('Enter at least 3 player names');return n}
+function create(){
+  const text=name();if(!text)return;
+  const names=[...new Set(text.split(/[\n,]+/).map(n=>n.trim()).filter(Boolean))];
+  if(names.length<3)return alert('You need at least 3 players');
+  LS('ln',names.join('\n'));
+  enter('OFFLINE',names);
 }
-function enter(c,n){
-  code=c;LS('rc',c);LS('ln',n);ref('players/'+uid).set(n);
-  ref().on('value',x=>{
-    room=x.val();if(!room){LS('rc','');alert('Room closed');return home()}
-    if(!P()[uid]){LS('rc','');return home()}
-    if(room.phase!=lastPhase){peek=false;lastPhase=room.phase}
-    const my=room.phase=='play'&&room.order&&room.order[room.turn]==uid&&!(room.s||{}).typed;
-    if(my&&lastTurn!=room.turn)beep(740);lastTurn=my?room.turn:null;render();
-  });
+function enter(c,names){
+  code=c;
+  const players={};
+  names.forEach((name,index)=>players['p'+(index+1)]=name);
+  uid='p1';
+  LS('uid',uid);
+  room={host:uid,phase:'lobby',players,scores:{}};
+  render();
 }
-(async()=>{const c=LS('rc');if(c&&!pre){try{const s=await db.ref('rooms/'+c+'/players/'+uid).get();if(s.exists())enter(c,s.val())}catch(e){}}})();
 
 function roleCard(){
   const r=room,s=r.s||{};let b='';
@@ -194,8 +212,8 @@ function render(){
   const phases=['lobby','play','talk','vote','result'];
   const active=phases.indexOf(ph);
   let h=`<div class="phase-strip">${phases.map((p,i)=>`<span class="phase-dot ${i<=active?'active':''}" title="${p}"></span>`).join('')}</div>
-  <div class="c"><div class="row"><div><div class="mut">ROOM CODE</div><div class="big code" style="font-size:21px;text-align:left">${code}</div></div>
-  <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:9px 12px" onclick="navigator.clipboard.writeText(location.origin+location.pathname+'?r='+code);this.textContent='Invite copied'">INVITE</button><button class="g" style="width:auto;padding:9px 10px" onclick="leaveRoom()">EXIT</button></div></div></div>`;
+  <div class="c"><div class="row"><div><div class="mut">OFFLINE MODE</div><div class="big code" style="font-size:21px;text-align:left">PASS & PLAY</div></div>
+  <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:9px 10px" onclick="leaveRoom()">EXIT</button></div></div></div>`;
   
   if(ph=='lobby'){
     h+=`<div class="c"><div class="row"><b>THE CAST</b><span class="badge">${ids.length} players</span></div><div class="cast-grid">${ids.map(i=>`<div class="cast-item"><span>${esc(pl[i])}${i==room.host?' <span class="mut">HOST</span>':''}</span><span class="pts">${SC(i)} pts</span>${isHost()&&i!=uid?`<button class="g" style="width:auto;padding:4px 7px;margin:0" onclick="kick('${i}')">×</button>`:''}</div>`).join('')}</div></div>`;
