@@ -10,7 +10,6 @@ h1{color:var(--gold2);letter-spacing:3px;font-size:24px;font-weight:900;margin:4
 @keyframes f{from{opacity:0;transform:translateY(6px)}}
 button,input,select,textarea{width:100%;padding:12px 14px;margin:6px 0;border-radius:11px;border:1px solid #2e2d3a;background:#0e0e13;color:var(--t);font-size:15px;font-family:inherit}
 button{background:linear-gradient(135deg,#e50914,#b80710);border:0;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(229,9,20,.3)}
-button:active:not(:disabled){transform:scale(.98)}
 button.g{background:#23232e;border:1px solid #343444;box-shadow:none}
 button.gold{background:linear-gradient(135deg,#f5c518,#c99c10);color:#111}
 button:disabled{opacity:.4;box-shadow:none}
@@ -19,7 +18,7 @@ button:disabled{opacity:.4;box-shadow:none}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 0}
 .row button,.row input{width:auto;padding:6px 12px;margin:0}.row input{width:90px}
 .imp{color:var(--red)}.mut{color:var(--mut);font-size:13px}
-.tm{font-size:30px;font-weight:800;text-align:center;color:var(--gold2);margin:6px 0}
+.tm{font-size:32px;font-weight:900;text-align:center;color:var(--gold2);margin:4px 0}
 .badge{display:inline-block;padding:4px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;background:rgba(212,175,55,.16);color:var(--gold2);border:1px solid rgba(212,175,55,.35)}
 .pbox{background:linear-gradient(135deg,rgba(212,175,55,.12),rgba(229,9,20,.08));border:1px solid rgba(212,175,55,.4);border-radius:14px;padding:12px 14px;margin:10px 0;text-align:center}
 .ptxt{font-size:15px;font-weight:600;color:var(--cream);margin-top:5px}
@@ -31,6 +30,8 @@ button:disabled{opacity:.4;box-shadow:none}
 .stub.peek .shut{transform:translateY(-90%)}
 .clap{width:100%;height:16px;position:absolute;top:0;left:0;background:repeating-linear-gradient(-45deg,var(--gold),var(--gold) 14px,#111 14px,#111 28px);border-bottom:2px solid #000}
 .pill{margin-top:10px;padding:7px 16px;border-radius:99px;background:rgba(212,175,55,.15);border:1px solid var(--gold);color:var(--gold2);font-weight:700;font-size:12px;letter-spacing:.8px}
+.fuse-bar{width:100%;height:8px;background:#23222b;border-radius:4px;overflow:hidden;margin:10px 0}
+.fuse-fill{height:100%;background:linear-gradient(90deg,var(--gold2),var(--red));width:100%;transition:width .3s linear}
 </style></head><body>
 <div class="hdr"><h1>🎬 MOVIE IMPOSTER</h1><div class="sub">35mm Director's Cut • Live Party Edition</div></div>
 <div id="app"><div class="c mut" style="text-align:center">Loading screening room…</div></div>
@@ -96,7 +97,20 @@ const ref=p=>db.ref('rooms/'+code+(p?'/'+p:''));
 const P=()=>room.players||{},isHost=()=>room.host==uid,isImp=()=>(room.imp||[]).includes(uid),SC=i=>(room.scores||{})[i]||0;
 const S=(k,o)=>`<select onchange="cfg.${k}=this.value;if('${k}'==='DK')render()">${o.map(([v,l])=>`<option value="${v}" ${cfg[k]==v?'selected':''}>${l}</option>`).join('')}</select>`;
 function beep(f=660){try{const a=new(window.AudioContext||webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.frequency.value=f;g.gain.setValueAtTime(.15,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.14);o.start();o.stop(a.currentTime+.14)}catch(e){}try{navigator.vibrate(20)}catch(e){}}
-setInterval(()=>{const e=$('#tm');if(e&&room&&room.tEnd)e.textContent=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000))+'s'},300);
+
+setInterval(()=>{
+  const e=$('#tm'),f=$('#fuse');
+  if(room&&room.tEnd){
+    const rem=Math.max(0,Math.ceil((room.tEnd-Date.now())/1000));
+    if(e)e.textContent=rem+'s';
+    if(f){
+      const pct=Math.max(0,(rem/15)*100);
+      f.style.width=pct+'%';
+    }
+    if(rem===0&&isHost()&&room.phase=='play'){next()}
+  }
+},300);
+
 const pre=(new URLSearchParams(location.search)).get('r')||'';
 
 function home(){
@@ -168,7 +182,7 @@ function render(){
       h+=`${S('C',[[1,'Undercover Mode: Imposter gets twin decoy movie'],[0,'Classic Mode: Imposter sees IMPOSTER']])}
       ${S('PR',[[1,"Director's Cut Prompts: ON"],[0,"Director's Cut Prompts: OFF"]])}
       ${S('I',[['auto','Imposters: Auto'],['1','1 Imposter'],['2','2 Imposters']])}
-      ${S('HM',[['spoken','Clues: Spoken in turn'],['typed','Clues: Typed & revealed together']])}
+      ${S('HM',[['spoken','Clues: Spoken in turn (Hot Potato Blitz)'],['typed','Clues: Typed & revealed together']])}
       ${S('T',[[60,'Discussion 1 min'],[120,'Discussion 2 min'],[180,'Discussion 3 min'],[300,'Discussion 5 min']])}
       ${S('W',[[0,'Endless rounds'],[5,'First to 5 pts'],[10,'First to 10 pts']])}
       ${S('K',[[1,'Show era/vibe clue'],[0,'No clues']])}
@@ -178,7 +192,17 @@ function render(){
   }else if(ph=='play'){
     h+=roleCard()+promptBox();
     if(s.typed)h+=hintBox()+(isHost()?`<button onclick="talk()">Start Discussion</button>`:'');
-    else{const cur=room.order[room.turn];h+=`<div class="c" style="text-align:center"><div class="mut">Say ONE clue out loud • Turn ${room.turn+1}/${room.order.length}</div><div class="big">${esc(pl[cur]||'?')}${cur==uid?' (You!)':''}</div><div class="tm" id="tm"></div>${cur==uid||isHost()?`<button onclick="next()">Done Speaking ✅</button>`:''}</div>`}
+    else{
+      const cur=room.order[room.turn];
+      h+=`<div class="c" style="text-align:center">
+        <div class="mut">🔥 HOT POTATO BLITZ • Turn ${room.turn+1}/${room.order.length}</div>
+        <div class="big" style="margin:4px 0">${esc(pl[cur]||'?')}${cur==uid?' (YOUR TURN!)':''}</div>
+        <div class="tm" id="tm">15s</div>
+        <div class="fuse-bar"><div class="fuse-fill" id="fuse"></div></div>
+        <div class="mut" style="margin-bottom:8px">Shout your clue out loud before time runs out!</div>
+        ${cur==uid||isHost()?`<button class="gold" onclick="next()">Shouted & Done! ⚡</button>`:'' }
+      </div>`;
+    }
   }else if(ph=='talk'){
     h+=roleCard()+promptBox()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Interrogation Room • Who is bluffing?</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">🗳️ Start Voting</button>`:'');
   }else if(ph=='vote'){
@@ -219,9 +243,13 @@ function start(){
   const ids=Object.keys(P()).sort(()=>Math.random()-.5),n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
   const m=pool[Math.random()*pool.length|0],decoy=+cfg.C?pickDecoy(m,pool):null,heist=makePool(m,decoy,pool);
   const pr=+cfg.PR?PROMPTS[Math.random()*PROMPTS.length|0]:[null,null];
-  ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order:[...ids].sort(()=>Math.random()-.5),turn:0,tEnd:Date.now()+25000,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
+  ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order:[...ids].sort(()=>Math.random()-.5),turn:0,tEnd:Date.now()+15000,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
 }
-function next(){const t=room.turn+1;if(t>=room.order.length)talk();else ref().update({turn:t,tEnd:Date.now()+25000})}
+function next(){
+  const t=room.turn+1;
+  if(t>=room.order.length)talk();
+  else ref().update({turn:t,tEnd:Date.now()+15000});
+}
 function talk(){ref().update({phase:'talk',tEnd:Date.now()+(room.s.talk||120)*1000})}
 function sendHint(){const v=$('#h').value.trim();if(v)ref('hints/'+uid).set(v)}
 function reveal(){
