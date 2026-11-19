@@ -215,7 +215,32 @@ function render(){
   <div class="c"><div class="row"><div><div class="mut">OFFLINE MODE</div><div class="big code" style="font-size:21px;text-align:left">PASS & PLAY</div></div>
   <div style="display:flex;gap:6px"><button class="g" style="width:auto;padding:9px 10px" onclick="leaveRoom()">EXIT</button></div></div></div>`;
   
-  if(ph=='lobby'){
+  if(ph=='ticketHandoff'||ph=='clueHandoff'||ph=='voteHandoff'){
+    const kind=ph=='ticketHandoff'?'TICKET':ph=='clueHandoff'?'CLUE':'VOTE';
+    const key=ph=='ticketHandoff'?'ticketIndex':ph=='clueHandoff'?'clueIndex':'voteIndex';
+    const index=room[key]||0;
+    const playerId=room.order[index];
+    const action=ph=='ticketHandoff'?'openTicket()':ph=='clueHandoff'?'openClue()':'openVote()';
+    const actionLabel=kind=='TICKET'?'Reveal My Ticket':kind=='CLUE'?'Lock My Clue':'Cast My Vote';
+    h+=`<div class="c" style="text-align:center">
+      <div class="mut">PASS THE PHONE TO</div>
+      <div class="big">${esc(pl[playerId]||'?')}</div>
+      <div class="mut" style="margin:10px 0">Do not let anyone else see the next screen.</div>
+      <button class="gold" onclick="${action}">${actionLabel}</button>
+    </div>`;
+  }else if(ph=='ticketPrivate'||ph=='cluePrivate'){
+    h+=roleCard()+promptBox();
+    if(ph=='cluePrivate'){
+      h+=hintBox();
+    }
+    h+=`<button class="gold" onclick="${ph=='ticketPrivate'?'finishTicket()':'finishClue()'}">Hide Screen & Pass Phone</button>`;
+  }else if(ph=='votePrivate'){
+    const v=room.votes||{};
+    h+=`<div class="c">
+      <b>🎯 Choose who you think is the Imposter:</b>
+      ${ids.filter(i=>i!=uid).map(i=>`<button class="${v[uid]==i?'':'g'}" onclick="beep(520);ref('votes/${uid}').set('${i}')">${esc(pl[i])}${v[uid]==i?' 🎯 (Selected)':''}</button>`).join('')}
+    </div><button class="gold" onclick="finishVote()">Hide Vote & Pass Phone</button>`;
+  }else if(ph=='lobby'){
     h+=`<div class="c"><div class="row"><b>THE CAST</b><span class="badge">${ids.length} players</span></div><div class="cast-grid">${ids.map(i=>`<div class="cast-item"><span>${esc(pl[i])}${i==room.host?' <span class="mut">HOST</span>':''}</span><span class="pts">${SC(i)} pts</span>${isHost()&&i!=uid?`<button class="g" style="width:auto;padding:4px 7px;margin:0" onclick="kick('${i}')">×</button>`:''}</div>`).join('')}</div></div>`;
     if(isHost()){
       const dkOpts=[['standard','📚 Full 300+ Movie Database'],...Object.entries(DECKS).map(([k,v])=>[k,v.name])];
@@ -258,7 +283,7 @@ function render(){
       </div>`;
     }
   }else if(ph=='talk'){
-    h+=roleCard()+promptBox()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Interrogation Room • Open Discussion!</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="ref('phase').set('vote')">🗳️ Start Voting</button>`:'');
+    h+=roleCard()+promptBox()+(s.typed?hintBox():'')+`<div class="c" style="text-align:center"><div class="mut">Interrogation Room • Open Discussion!</div><div class="tm" id="tm"></div></div>`+(isHost()?`<button onclick="startVoting()">🗳️ Start Voting</button>`:'');
   }else if(ph=='vote'){
     const v=room.votes||{};
     h+=`<div class="c">
@@ -303,14 +328,81 @@ function makePool(m,decoy,pool){
   return Array.from(s).sort(()=>Math.random()-.5);
 }
 function start(){
-  let[a,b]=cfg.P.split('-').map(Number);if(cfg.Y1)a=+cfg.Y1;if(cfg.Y2)b=+cfg.Y2;
-  const custom=cfg.X.split('\n').map(x=>x.trim()).filter(Boolean);
-  let pool=custom.length?custom.map(t=>({t,l:'Custom',y:'',d:''})):(cfg.DK!=='standard'&&DECKS[cfg.DK]?DECKS[cfg.DK].movies:MOV.filter(m=>(cfg.L=='all'||m.l==cfg.L)&&m.y>=a&&m.y<=b&&(cfg.D=='all'||m.d==cfg.D)));
-  if(!pool.length)return alert('No movies match. Loosen the filters.');
-  const ids=Object.keys(P()).sort(()=>Math.random()-.5),n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
-  const m=pool[Math.random()*pool.length|0],decoy=+cfg.C?pickDecoy(m,pool):null,heist=makePool(m,decoy,pool);
-  const pr=+cfg.PR?PROMPTS[Math.random()*PROMPTS.length|0]:[null,null];
-  ref().update({phase:'play',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order:[...ids].sort(()=>Math.random()-.5),turn:0,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
+  try{
+    let[a,b]=cfg.P.split('-').map(Number);if(cfg.Y1)a=+cfg.Y1;if(cfg.Y2)b=+cfg.Y2;
+    const custom=cfg.X.split('\n').map(x=>x.trim()).filter(Boolean);
+    let pool=custom.length?custom.map(t=>({t,l:'Custom',y:'',d:''})):(cfg.DK!=='standard'&&DECKS[cfg.DK]?DECKS[cfg.DK].movies:MOV.filter(m=>(cfg.L=='all'||m.l==cfg.L)&&m.y>=a&&m.y<=b&&(cfg.D=='all'||m.d==cfg.D)));
+    if(!pool.length)return alert('No movies match. Loosen the filters.');
+    const ids=Object.keys(P());
+    if(ids.length<3)return alert('You need at least 3 players.');
+    const n=ids.length,k=cfg.I=='auto'?(n>=7?2:1):Math.min(+cfg.I,Math.max(1,Math.floor((n-1)/2)));
+    const m=pool[Math.random()*pool.length|0],decoy=+cfg.C?pickDecoy(m,pool):null,heist=makePool(m,decoy,pool);
+    const pr=+cfg.PR?PROMPTS[Math.random()*PROMPTS.length|0]:[null,null];
+    const order=[...ids].sort(()=>Math.random()-.5);
+    ref().update({phase:'ticketHandoff',movie:m.t,my:m.y||0,ml:m.l||'Cinema',mHint:m.hint||null,decoy,pool:heist,pTag:pr[0],pTxt:pr[1],imp:ids.slice(0,k),order,turn:0,ticketIndex:0,clueIndex:0,voteIndex:0,hints:null,votes:null,guess:null,caught:null,s:{typed:cfg.HM=='typed',talk:+cfg.T,win:+cfg.W,clue:!!(+cfg.K&&(m.y||m.hint))}});
+  }catch(e){
+    console.error(e);
+    alert('Could not start the round. Please try again.');
+  }
+}
+function openTicket(){
+  uid=room.order[room.ticketIndex||0];
+  room.phase='ticketPrivate';
+  render();
+}
+function finishTicket(){
+  const index=(room.ticketIndex||0)+1;
+  uid=room.host;
+  if(index>=room.order.length){
+    room.ticketIndex=0;
+    if(room.s&&room.s.typed)room.phase='clueHandoff';
+    else room.phase='play';
+  }else{
+    room.ticketIndex=index;
+    room.phase='ticketHandoff';
+  }
+  render();
+}
+function openClue(){
+  uid=room.order[room.clueIndex||0];
+  room.phase='cluePrivate';
+  render();
+}
+function finishClue(){
+  sendHint();
+  const index=(room.clueIndex||0)+1;
+  uid=room.host;
+  if(index>=room.order.length){
+    room.clueIndex=0;
+    room.phase='talk';
+  }else{
+    room.clueIndex=index;
+    room.phase='clueHandoff';
+  }
+  render();
+}
+function startVoting(){
+  uid=room.host;
+  room.phase='voteHandoff';
+  room.voteIndex=0;
+  render();
+}
+function openVote(){
+  uid=room.order[room.voteIndex||0];
+  room.phase='votePrivate';
+  render();
+}
+function finishVote(){
+  const index=(room.voteIndex||0)+1;
+  uid=room.host;
+  if(index>=room.order.length){
+    room.voteIndex=0;
+    room.phase='vote';
+  }else{
+    room.voteIndex=index;
+    room.phase='voteHandoff';
+  }
+  render();
 }
 function next(){
   const t=room.turn+1;
@@ -318,7 +410,7 @@ function next(){
   else ref().update({turn:t});
 }
 function talk(){ref().update({phase:'talk',tEnd:Date.now()+(room.s.talk||120)*1000})}
-function sendHint(){const v=$('#h').value.trim();if(v)ref('hints/'+uid).set(v)}
+function sendHint(){const el=$('#h');if(!el)return;const v=el.value.trim();if(v)ref('hints/'+uid).set(v)}
 function reveal(){
   const v=room.votes||{},ids=Object.keys(P()),impList=room.imp||[];
   let correctVotes=0, totalVotes=0;
